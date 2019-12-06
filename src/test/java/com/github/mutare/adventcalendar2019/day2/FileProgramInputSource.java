@@ -1,0 +1,28 @@
+package com.github.mutare.adventcalendar2019.day2;
+
+import com.github.mutare.adventcalendar2019.day1.inputsource.MassInputSource;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class FileProgramInputSource {
+    public int[] getProgram() throws IOException {
+        Collection<Integer> program = new LinkedList<>();
+        try (InputStream is = FileProgramInputSource.class.getResourceAsStream("/day2/data")) {
+            InputStreamReader inputStreamReader = new InputStreamReader(is);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                program.addAll(Arrays.asList(line.split(",")).stream().map(Integer::parseInt).collect(Collectors.toList()));
+            }
+        }
+        return program.stream().mapToInt(value -> value.intValue()).toArray();
+    }
+}

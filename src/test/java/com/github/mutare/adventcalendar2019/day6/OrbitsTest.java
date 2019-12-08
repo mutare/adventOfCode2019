@@ -19,6 +19,7 @@ public class OrbitsTest {
         OrbitsMap orbitsMap = new OrbitsMap(orbits);
         assertEquals(2604, orbitsMap.orbitingObjects.size());
         assertEquals(621125, orbitsMap.getOrbitsNo());
+        assertEquals(550, orbitsMap.getOrbitsNoBetween("YOU", "SAN"));
     }
 
     @Test
@@ -29,5 +30,12 @@ public class OrbitsTest {
         assertEquals(12, orbitsMap.orbitingObjects.size());
 
         assertEquals(42, orbitsMap.getOrbitsNo());
+    }
+
+    @Test
+    public void test2() throws IOException {
+        Collection<Orbit> orbits = new FileOrbitInputSource().getOrbits("/day6/test2");
+        OrbitsMap orbitsMap = new OrbitsMap(orbits);
+        assertEquals(4, orbitsMap.getOrbitsNoBetween("YOU", "SAN"));
     }
 }

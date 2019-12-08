@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class OrbitingObject {
-    private String name;
+    String name;
     private Set<OrbitingObject> orbitingObjects = new HashSet<>();
     OrbitingObject centralObject;
 

@@ -2,6 +2,8 @@ package com.github.mutare.adventcalendar2019.day6;
 
 import java.util.*;
 
+import static java.util.Arrays.asList;
+
 public class OrbitsMap {
 
     Map<String, OrbitingObject> orbitingObjects = new HashMap<>();
@@ -36,4 +38,41 @@ public class OrbitsMap {
         }
         return 1 + routeToCentral(orbitingObject.centralObject);
     }
+
+    public int getOrbitsNoBetween(String you, String san) {
+        List<OrbitingObject> youRoute = routeOf(you);
+        List<OrbitingObject> sanRoute = routeOf(san);
+        Collections.reverse(youRoute);
+        Collections.reverse(sanRoute);
+        OrbitingObject meetPoint = null;
+        for(OrbitingObject orbitingObject : youRoute) {
+            if (sanRoute.contains(orbitingObject)) {
+                meetPoint = orbitingObject;
+                break;
+            }
+        }
+        int r = 0;
+        for (int i = 1 ; i < youRoute.size() ; i ++){
+            if (youRoute.get(i).equals(meetPoint)) break;
+            r++;
+        }
+        for (int i = 1 ; i < sanRoute.size() ; i ++){
+            if (sanRoute.get(i).equals(meetPoint)) break;
+            r++;
+        }
+
+        return r;
+    }
+
+    private List<OrbitingObject> routeOf(String name) {
+        OrbitingObject orbitingObject = orbitingObjects.get(name);
+        if (orbitingObject.centralObject == null) {
+            return new LinkedList<>(asList(orbitingObject));
+        }
+        List<OrbitingObject> orbitingObjects = routeOf(this.orbitingObjects.get(name).centralObject.name);
+        orbitingObjects.add(orbitingObject);
+        return orbitingObjects;
+    }
+
+
 }

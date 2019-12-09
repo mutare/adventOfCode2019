@@ -2,15 +2,14 @@ package com.github.mutare.adventcalendar2019.day5;
 
 import com.github.mutare.adventcalendar2019.day2.Operation;
 import com.github.mutare.adventcalendar2019.day2.ShipComputer;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -50,8 +49,9 @@ public class TESTTest {
 
         Collection<Integer> collect = shipComputer.output();
         assertEquals(10, collect.size());
-        for(int i = 0 ; i < collect.size() - 1 ; i++) collect.iterator().next();
-        assertEquals(13285749, collect.iterator().next().intValue());
+        Iterator<Integer> iterator = collect.iterator();
+        for (int i = 0; i < collect.size() - 1; i++) iterator.next();
+        assertEquals(13285749, iterator.next().intValue());
         collect.forEach(System.out::println);
     }
 
@@ -71,72 +71,72 @@ public class TESTTest {
     public void testJumpImmediateMode() throws InterruptedException {
         shipComputer.input(0);
         shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(0, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(0, collect0.take().intValue());
         shipComputer.input(1);
         shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(1, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(1, collect1.take().intValue());
     }
 
     @Test
     public void testJumpPoisiotionMode() throws InterruptedException {
         shipComputer.input(0);
         shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(0, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(0, collect0.take().intValue());
         shipComputer.input(1);
         shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(1, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(1, collect1.take().intValue());
     }
 
     @Test
     public void testEqPositionMode() throws InterruptedException {
         shipComputer.input(8);
         shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(1, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.take().intValue());
         shipComputer.input(7);
         shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(0, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.take().intValue());
     }
 
     @Test
     public void testLessPositionMode() throws InterruptedException {
         shipComputer.input(7);
         shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(1, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.take().intValue());
         shipComputer.input(8);
         shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(0, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.take().intValue());
     }
 
     @Test
     public void testEqImmediateMode() throws InterruptedException {
         shipComputer.input(8);
         shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(1, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.take().intValue());
         shipComputer.input(7);
         shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(0, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.take().intValue());
     }
 
     @Test
     public void testLessImmediateMode() throws InterruptedException {
         shipComputer.input(7);
         shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(1, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.take().intValue());
         shipComputer.input(8);
         shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(0, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.take().intValue());
     }
 
     @Test
@@ -147,16 +147,16 @@ public class TESTTest {
 
         shipComputer.input(7);
         shipComputer.proccess(program);
-        Collection<Integer> collect0 = shipComputer.output();
-        assertEquals(999, collect0.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect0 = shipComputer.output();
+        assertEquals(999, collect0.take().intValue());
         shipComputer.input(8);
         shipComputer.proccess(program);
-        Collection<Integer> collect1 = shipComputer.output();
-        assertEquals(1000, collect1.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect1 = shipComputer.output();
+        assertEquals(1000, collect1.take().intValue());
 
         shipComputer.input(9);
         shipComputer.proccess(program);
-        Collection<Integer> collect2 = shipComputer.output();
-        assertEquals(1001, collect2.iterator().next().intValue());
+        LinkedBlockingQueue<Integer> collect2 = shipComputer.output();
+        assertEquals(1001, collect2.take().intValue());
     }
 }

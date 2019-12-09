@@ -3,6 +3,8 @@ package com.github.mutare.adventcalendar2019.day2;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Stream;
 
 import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.*;
@@ -15,13 +17,13 @@ class OperationProcessor {
         this.memory = memory;
     }
 
-    int process(Operation operation, int index, int input, Stream.Builder<Integer> output) {
+    int process(Operation operation, int index, LinkedBlockingQueue<Integer> input, LinkedBlockingQueue<Integer> output) throws InterruptedException {
         if (operation.type == Operation.OperationType.add) {
             memory[operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
         } else if (operation.type == multiply) {
             memory[operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
         } else if (operation.type == Operation.OperationType.input) {
-            memory[operation.parameters[0]] = input;
+            memory[operation.parameters[0]] = input.take();
         } else if (operation.type == Operation.OperationType.output) {
             output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[operation.parameters[0]] : operation.parameters[0]);
         } else if (operation.type == Operation.OperationType.jump_if_true) {

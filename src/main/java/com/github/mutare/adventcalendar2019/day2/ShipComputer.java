@@ -1,37 +1,43 @@
 package com.github.mutare.adventcalendar2019.day2;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ShipComputer {
 
+    LinkedBlockingQueue<Integer> input = new LinkedBlockingQueue<>();
+    LinkedBlockingQueue<Integer> output = new LinkedBlockingQueue<>();
+
+
     private int[] memory;
-    private int input;
-    private Stream.Builder<Integer> outputBuilder = Stream.builder();
 
 
-    public int[] proccess(int... program) {
-        outputBuilder = Stream.builder();
+    public int[] proccess(int... program) throws InterruptedException {
         OperationProcessor operationProcessor = new OperationProcessor(memory = Arrays.copyOf(program, program.length));
 
         int i = 0;
         Operation operation;
         while ((operation = operationProcessor.parseOperation(i)).type != Operation.OperationType.end) {
-            i =  operationProcessor.process(operation, i, this.input, outputBuilder);
+            i = operationProcessor.process(operation, i, input, output);
         }
         return memory;
     }
 
-    public void input(int input) {
-        outputBuilder = Stream.builder();
-        this.input = input;
+    public void input(LinkedBlockingQueue<Integer> blockingQueue) {
+        this.input = blockingQueue;
     }
 
-    private void output(int out) {
-        outputBuilder.add(out);
+    public void input(int... input) {
+        for (int value : input) {
+            this.input.add(value);
+        }
     }
 
-    public Stream<Integer> output() {
-        return outputBuilder.build();
+    public LinkedBlockingQueue<Integer> output() {
+        return output;
+    }
+
+    public LinkedBlockingQueue<Integer> getInput() {
+        return input;
     }
 }

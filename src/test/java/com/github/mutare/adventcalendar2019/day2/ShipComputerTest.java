@@ -14,7 +14,7 @@ public class ShipComputerTest {
     private ShipComputer shipComputer = new ShipComputer();
 
     @Test
-    public void test() {
+    public void test() throws InterruptedException {
         assertArrayEquals(new int[]{0, 1, 2, 3}, new int[]{0, 1, 2, 3});
         assertArrayEquals(new int[]{2, 0, 0, 0, 99}, shipComputer.proccess(1, 0, 0, 0, 99));
         assertArrayEquals(new int[]{2, 3, 0, 6, 99}, shipComputer.proccess(2, 3, 0, 3, 99));
@@ -23,7 +23,7 @@ public class ShipComputerTest {
     }
 
     @Test
-    public void one() throws IOException {
+    public void one() throws IOException, InterruptedException {
         int[] program = new FileProgramInputSource().getProgram();
         program[1] = 12;
         program[2] = 2;
@@ -32,7 +32,7 @@ public class ShipComputerTest {
     }
 
     @Test
-    public void two() throws IOException {
+    public void two() throws IOException, InterruptedException {
         int[] program = new FileProgramInputSource().getProgram();
         for (int noun = 0; noun <= 99; noun++) {
             for (int verb = 0; verb <= 99; verb++) {

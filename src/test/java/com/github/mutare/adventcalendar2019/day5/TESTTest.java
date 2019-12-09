@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class TESTTest {
     private ShipComputer shipComputer = new ShipComputer();
 
     @Test
-    public void test() {
+    public void test() throws InterruptedException {
         assertArrayEquals(new int[]{1002, 4, 3, 4, 99}, shipComputer.proccess(1002, 4, 3, 4, 33));
     }
 
@@ -42,119 +43,120 @@ public class TESTTest {
     }
 
     @Test
-    public void one() throws IOException {
+    public void one() throws IOException, InterruptedException {
         int[] program = new FileProgramInputSource().getProgram();
         shipComputer.input(1);
         shipComputer.proccess(program);
 
-        List<Integer> collect = shipComputer.output().collect(Collectors.toList());
+        Collection<Integer> collect = shipComputer.output();
         assertEquals(10, collect.size());
-        assertEquals(13285749, collect.get(collect.size() - 1).intValue());
+        for(int i = 0 ; i < collect.size() - 1 ; i++) collect.iterator().next();
+        assertEquals(13285749, collect.iterator().next().intValue());
         collect.forEach(System.out::println);
     }
 
     @Test
-    public void two() throws IOException {
+    public void two() throws IOException, InterruptedException {
         int[] program = new FileProgramInputSource().getProgram();
         shipComputer.input(5);
         shipComputer.proccess(program);
 
-        List<Integer> collect = shipComputer.output().collect(Collectors.toList());
+        Collection<Integer> collect = shipComputer.output();
         assertEquals(1, collect.size());
-        assertEquals(5000972, collect.get(collect.size() - 1).intValue());
+        assertEquals(5000972, collect.iterator().next().intValue());
         collect.forEach(System.out::println);
     }
 
     @Test
-    public void testJumpImmediateMode() {
+    public void testJumpImmediateMode() throws InterruptedException {
         shipComputer.input(0);
         shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(0, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(0, collect0.iterator().next().intValue());
         shipComputer.input(1);
         shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(1, collect1.iterator().next().intValue());
     }
 
     @Test
-    public void testJumpPoisiotionMode() {
+    public void testJumpPoisiotionMode() throws InterruptedException {
         shipComputer.input(0);
         shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(0, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(0, collect0.iterator().next().intValue());
         shipComputer.input(1);
         shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(1, collect1.iterator().next().intValue());
     }
 
     @Test
-    public void testEqPositionMode() {
+    public void testEqPositionMode() throws InterruptedException {
         shipComputer.input(8);
         shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.iterator().next().intValue());
         shipComputer.input(7);
         shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(0, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.iterator().next().intValue());
     }
 
     @Test
-    public void testLessPositionMode() {
+    public void testLessPositionMode() throws InterruptedException {
         shipComputer.input(7);
         shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.iterator().next().intValue());
         shipComputer.input(8);
         shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(0, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.iterator().next().intValue());
     }
 
     @Test
-    public void testEqImmediateMode() {
+    public void testEqImmediateMode() throws InterruptedException {
         shipComputer.input(8);
         shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.iterator().next().intValue());
         shipComputer.input(7);
         shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(0, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.iterator().next().intValue());
     }
 
     @Test
-    public void testLessImmediateMode() {
+    public void testLessImmediateMode() throws InterruptedException {
         shipComputer.input(7);
         shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(1, collect0.iterator().next().intValue());
         shipComputer.input(8);
         shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(0, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(0, collect1.iterator().next().intValue());
     }
 
     @Test
-    public void testLarge() {
+    public void testLarge() throws InterruptedException {
         int[] program = {3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
                 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
                 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99};
 
         shipComputer.input(7);
         shipComputer.proccess(program);
-        List<Integer> collect0 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(999, collect0.get(0).intValue());
+        Collection<Integer> collect0 = shipComputer.output();
+        assertEquals(999, collect0.iterator().next().intValue());
         shipComputer.input(8);
         shipComputer.proccess(program);
-        List<Integer> collect1 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1000, collect1.get(0).intValue());
+        Collection<Integer> collect1 = shipComputer.output();
+        assertEquals(1000, collect1.iterator().next().intValue());
 
         shipComputer.input(9);
         shipComputer.proccess(program);
-        List<Integer> collect2 = shipComputer.output().collect(Collectors.toList());
-        assertEquals(1001, collect2.get(0).intValue());
+        Collection<Integer> collect2 = shipComputer.output();
+        assertEquals(1001, collect2.iterator().next().intValue());
     }
 }

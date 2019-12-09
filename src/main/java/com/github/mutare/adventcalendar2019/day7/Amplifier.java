@@ -7,9 +7,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Amplifier extends Thread {
     private ShipComputer shipComputer;
     private int phase;
-    private int[] program;
+    private long[] program;
 
-    public Amplifier(int[] program, int phase) {
+    public Amplifier(long[] program, int phase) {
         this.phase = phase;
         this.program = program;
         this.shipComputer = new ShipComputer();
@@ -29,7 +29,7 @@ public class Amplifier extends Thread {
         this.start();
     }
 
-    void setInput(LinkedBlockingQueue<Integer> input) {
+    void setInput(LinkedBlockingQueue<Long> input) {
         if (this.shipComputer.getInput().size() > 0) {
             while(!input.isEmpty()) {
                 this.shipComputer.getInput().add(input.poll());
@@ -45,7 +45,7 @@ public class Amplifier extends Thread {
         shipComputer.input(input);
     }
 
-    public LinkedBlockingQueue<Integer> getOutput() {
+    public LinkedBlockingQueue<Long> getOutput() {
         return shipComputer.output();
     }
 }

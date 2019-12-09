@@ -1,43 +1,44 @@
 package com.github.mutare.adventcalendar2019.day2;
 
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ShipComputer {
 
-    LinkedBlockingQueue<Integer> input = new LinkedBlockingQueue<>();
-    LinkedBlockingQueue<Integer> output = new LinkedBlockingQueue<>();
+    LinkedBlockingQueue<Long> input = new LinkedBlockingQueue<>();
+    LinkedBlockingQueue<Long> output = new LinkedBlockingQueue<>();
+
+    private AtomicLong base = new AtomicLong(0);
+    private long[] memory = new long[40960];
 
 
-    private int[] memory;
+    public long[] proccess(long ... program) throws InterruptedException {
+        System.arraycopy(program, 0, memory, 0, program.length);
+        OperationProcessor operationProcessor = new OperationProcessor(memory);
 
-
-    public int[] proccess(int... program) throws InterruptedException {
-        OperationProcessor operationProcessor = new OperationProcessor(memory = Arrays.copyOf(program, program.length));
-
-        int i = 0;
+        long i = 0;
         Operation operation;
-        while ((operation = operationProcessor.parseOperation(i)).type != Operation.OperationType.end) {
-            i = operationProcessor.process(operation, i, input, output);
+        while ((operation = operationProcessor.parseOperation(i, base)).type != Operation.OperationType.end) {
+            i = operationProcessor.process(operation, i, input, output, base);
         }
         return memory;
     }
 
-    public void input(LinkedBlockingQueue<Integer> blockingQueue) {
+    public void input(LinkedBlockingQueue<Long> blockingQueue) {
         this.input = blockingQueue;
     }
 
-    public void input(int... input) {
-        for (int value : input) {
+    public void input(long ... input) {
+        for (long value : input) {
             this.input.add(value);
         }
     }
 
-    public LinkedBlockingQueue<Integer> output() {
+    public LinkedBlockingQueue<Long> output() {
         return output;
     }
 
-    public LinkedBlockingQueue<Integer> getInput() {
+    public LinkedBlockingQueue<Long> getInput() {
         return input;
     }
 }

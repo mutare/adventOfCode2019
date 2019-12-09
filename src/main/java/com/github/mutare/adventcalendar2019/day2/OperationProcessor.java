@@ -1,78 +1,106 @@
 package com.github.mutare.adventcalendar2019.day2;
 
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static com.github.mutare.adventcalendar2019.day2.Operation.OperationMode.immediate;
 import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.*;
 import static java.util.Arrays.asList;
 
 class OperationProcessor {
-    private int[] memory;
+    private long[] memory;
 
-    OperationProcessor(int[] memory) {
+    OperationProcessor(long[] memory) {
         this.memory = memory;
     }
 
-    int process(Operation operation, int index, LinkedBlockingQueue<Integer> input, LinkedBlockingQueue<Integer> output) throws InterruptedException {
+    long process(Operation operation, long index, LinkedBlockingQueue<Long> input, LinkedBlockingQueue<Long> output, AtomicLong base) throws InterruptedException {
         if (operation.type == Operation.OperationType.add) {
-            memory[operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
+            memory[(int) operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
         } else if (operation.type == multiply) {
-            memory[operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
+            memory[(int) operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
         } else if (operation.type == Operation.OperationType.input) {
-            memory[operation.parameters[0]] = input.take();
+            memory[(int) operation.parameters[0]] = input.take();
         } else if (operation.type == Operation.OperationType.output) {
-            output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[operation.parameters[0]] : operation.parameters[0]);
+            output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
         } else if (operation.type == Operation.OperationType.jump_if_true) {
-            if (/*operation.parametersModes[0] == Operation.OperationMode.immediate && */operation.parameters[0] != 0) {
+            if (operation.parameters[0] != 0) {
                 return operation.parameters[1];
             }
         }
         if (operation.type == Operation.OperationType.jump_if_false) {
-            if (/*operation.parametersModes[0] == Operation.OperationMode.immediate && */operation.parameters[0] == 0) {
+            if (operation.parameters[0] == 0) {
                 return operation.parameters[1];
             }
         }
         if (operation.type == Operation.OperationType.less) {
-            memory[operation.parameters[2]] = operation.parameters[0] < operation.parameters[1] ? 1 : 0;
+            memory[(int) operation.parameters[2]] = operation.parameters[0] < operation.parameters[1] ? 1 : 0;
         }
         if (operation.type == Operation.OperationType.eq) {
-            memory[operation.parameters[2]] = operation.parameters[0] == operation.parameters[1] ? 1 : 0;
+            memory[(int) operation.parameters[2]] = operation.parameters[0] == operation.parameters[1] ? 1 : 0;
+        }
+        if (operation.type == adjusts_the_relative_base) {
+            base.addAndGet(operation.parameters[0]);
         }
         return skipToNext(operation, index);
     }
 
 
-
-
-    private int skipToNext(Operation operation, int i) {
+    private long skipToNext(Operation operation, long i) {
         return i + operation.type.noOfParameters + 1;
     }
 
-    Operation parseOperation(int i) {
-        Operation operation = Operation.of(memory[i]);
-        getParameters(operation, i);
+    Operation parseOperation(long i, AtomicLong base) {
+        Operation operation = Operation.of(memory[(int) i]);
+        getParameters(operation, i, base);
         return operation;
     }
 
-    private void getParameters(Operation operation, int index) {
-        for (int i = 0; i < operation.type.noOfParameters - 1; i++) {
-            int parameterValue;
-            if (operation.parametersModes[i] == Operation.OperationMode.position && operation.type != Operation.OperationType.input) {
-                parameterValue = memory[memory[index + i + 1]];
-            } else {
-                parameterValue = memory[index + i + 1];
-            }
-            operation.parameters[i] = parameterValue;
+    private void getParameters(Operation operation, long index, AtomicLong base) {
+
+        switch (operation.type) {
+            case add :
+            case multiply:
+                operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
+                operation.parameters[1] = readParameter(index + 2, operation.parametersModes[1], base);
+                operation.parameters[2] = readParameter(index + 3, operation.parametersModes[2], base, true);
+                break;
+            case input:
+            case output:
+                operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base, true);
+                break;
+            case jump_if_true:
+            case jump_if_false:
+                operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
+                operation.parameters[1] = readParameter(index + 2, operation.parametersModes[1], base);
+                break;
+            case less:
+            case eq:
+                operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
+                operation.parameters[1] = readParameter(index + 2, operation.parametersModes[1], base);
+                operation.parameters[2] = readParameter(index + 3, operation.parametersModes[2], base, true);
+                break;
+            case adjusts_the_relative_base:
+                operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
+                break;
         }
-        if (asList(add, multiply, input, output, eq, less, jump_if_false, jump_if_true).contains(operation.type)) {
-            operation.parameters[operation.type.noOfParameters - 1] = memory[index + operation.type.noOfParameters];
-        }
-        if (asList(jump_if_false, jump_if_true).contains(operation.type) && operation.parametersModes[operation.type.noOfParameters -1] == Operation.OperationMode.position) {
-            operation.parameters[operation.type.noOfParameters - 1] = memory[memory[index + operation.type.noOfParameters]];
+    }
+
+    private long readParameter(long index, Operation.OperationMode parametersMode, AtomicLong base) {
+        return readParameter(index, parametersMode, base, false);
+    }
+
+    private long readParameter(long index, Operation.OperationMode parametersMode, AtomicLong base, boolean indexing) {
+        switch(parametersMode) {
+            case immediate:
+                return memory[(int) index];
+            case relative:
+                return indexing ? (int) memory[(int)index]+ base.get() : memory[(int) memory[(int) (index)] + (int)base.get()];
+            case position:
+                return indexing ? memory[(int) index] : memory[(int) memory[(int)index]];
+            default:
+                throw new RuntimeException();
         }
     }
 }

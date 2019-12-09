@@ -7,9 +7,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class AmplifierSeries {
 
     List<Amplifier> amplifiers = new LinkedList<>();
-    private LinkedBlockingQueue<Integer> output;
+    private LinkedBlockingQueue<Long> output;
 
-    public AmplifierSeries(int[] program, boolean feedbackLoop, int... phases) {
+    public AmplifierSeries(long[] program, boolean feedbackLoop, int... phases) {
         for (int phase : phases) {
             amplifiers.add(new Amplifier(program, phase));
         }
@@ -27,7 +27,7 @@ public class AmplifierSeries {
         output = amplifiers.get(amplifiers.size() - 1).getOutput();
     }
 
-    public LinkedBlockingQueue<Integer> getOutput() {
+    public LinkedBlockingQueue<Long> getOutput() {
         return output;
     }
 

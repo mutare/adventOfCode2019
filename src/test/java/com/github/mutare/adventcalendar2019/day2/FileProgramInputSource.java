@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FileProgramInputSource {
-    public int[] getProgram() throws IOException {
+    public long[] getProgram() throws IOException {
         Collection<Integer> program = new LinkedList<>();
         try (InputStream is = FileProgramInputSource.class.getResourceAsStream("/day2/data")) {
             InputStreamReader inputStreamReader = new InputStreamReader(is);
@@ -23,6 +23,6 @@ public class FileProgramInputSource {
                 program.addAll(Arrays.asList(line.split(",")).stream().map(Integer::parseInt).collect(Collectors.toList()));
             }
         }
-        return program.stream().mapToInt(value -> value.intValue()).toArray();
+        return program.stream().mapToLong(value -> value.intValue()).toArray();
     }
 }

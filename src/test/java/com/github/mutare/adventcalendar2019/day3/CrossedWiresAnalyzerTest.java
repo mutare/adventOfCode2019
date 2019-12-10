@@ -16,12 +16,6 @@ public class CrossedWiresAnalyzerTest {
     private CrossedWiresAnalyzer crossedWiresAnalyzer;
 
     @Test
-    public void data() {
-        fileInputSource.getLine(0).forEach(System.out::println);
-        fileInputSource.getLine(1).forEach(System.out::println);
-    }
-
-    @Test
     public void oneTwo() {
         crossedWiresAnalyzer = new CrossedWiresAnalyzer(fileInputSource.getLine(0), fileInputSource.getLine(1));
         assertEquals(1674, crossedWiresAnalyzer.getDistanceToNearestIntersection());

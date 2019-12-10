@@ -53,7 +53,6 @@ public class TESTTest {
         Iterator<Long> iterator = collect.iterator();
         for (int i = 0; i < collect.size() - 1; i++) iterator.next();
         assertEquals(13285749, iterator.next().intValue());
-        collect.forEach(System.out::println);
     }
 
     @Test
@@ -65,7 +64,6 @@ public class TESTTest {
         Collection<Long> collect = shipComputer.output();
         assertEquals(1, collect.size());
         assertEquals(5000972, collect.iterator().next().intValue());
-        collect.forEach(System.out::println);
     }
 
     @Test

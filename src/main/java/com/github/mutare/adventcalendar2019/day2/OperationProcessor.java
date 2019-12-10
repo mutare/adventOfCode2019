@@ -3,9 +3,6 @@ package com.github.mutare.adventcalendar2019.day2;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.adjusts_the_relative_base;
-import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.multiply;
-
 class OperationProcessor {
     private long[] memory;
 
@@ -14,32 +11,38 @@ class OperationProcessor {
     }
 
     long process(Operation operation, long index, LinkedBlockingQueue<Long> input, LinkedBlockingQueue<Long> output, AtomicLong base) throws InterruptedException {
-        if (operation.type == Operation.OperationType.add) {
-            memory[(int) operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
-        } else if (operation.type == multiply) {
-            memory[(int) operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
-        } else if (operation.type == Operation.OperationType.input) {
-            memory[(int) operation.parameters[0]] = input.take();
-        } else if (operation.type == Operation.OperationType.output) {
-            output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : Operation.OperationMode.relative == operation.parametersModes[0] ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
-        } else if (operation.type == Operation.OperationType.jump_if_true) {
-            if (operation.parameters[0] != 0) {
-                return operation.parameters[1];
-            }
-        }
-        if (operation.type == Operation.OperationType.jump_if_false) {
-            if (operation.parameters[0] == 0) {
-                return operation.parameters[1];
-            }
-        }
-        if (operation.type == Operation.OperationType.less) {
-            memory[(int) operation.parameters[2]] = operation.parameters[0] < operation.parameters[1] ? 1 : 0;
-        }
-        if (operation.type == Operation.OperationType.eq) {
-            memory[(int) operation.parameters[2]] = operation.parameters[0] == operation.parameters[1] ? 1 : 0;
-        }
-        if (operation.type == adjusts_the_relative_base) {
-            base.addAndGet(operation.parameters[0]);
+        switch (operation.type) {
+            case add:
+                memory[(int) operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
+                break;
+            case multiply:
+                memory[(int) operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
+                break;
+            case input:
+                memory[(int) operation.parameters[0]] = input.take();
+                break;
+            case output:
+                output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : Operation.OperationMode.relative == operation.parametersModes[0] ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
+                break;
+            case jump_if_true:
+                if (operation.parameters[0] != 0) {
+                    return operation.parameters[1];
+                }
+                break;
+            case jump_if_false:
+                if (operation.parameters[0] == 0) {
+                    return operation.parameters[1];
+                }
+                break;
+            case less:
+                memory[(int) operation.parameters[2]] = operation.parameters[0] < operation.parameters[1] ? 1 : 0;
+                break;
+            case eq:
+                memory[(int) operation.parameters[2]] = operation.parameters[0] == operation.parameters[1] ? 1 : 0;
+                break;
+            case adjusts_the_relative_base:
+                base.addAndGet(operation.parameters[0]);
+                break;
         }
         return skipToNext(operation, index);
     }

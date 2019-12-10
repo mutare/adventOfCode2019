@@ -3,6 +3,8 @@ package com.github.mutare.adventcalendar2019.day2;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.lang.System.arraycopy;
+
 public class ShipComputer {
 
     LinkedBlockingQueue<Long> input = new LinkedBlockingQueue<>();
@@ -13,8 +15,7 @@ public class ShipComputer {
     private int operaionCount = 0;
 
     public long[] proccess(long ... program) throws InterruptedException {
-
-        System.arraycopy(program, 0, memory, 0, program.length);
+        arraycopy(program, 0, memory, 0, program.length);
         OperationProcessor operationProcessor = new OperationProcessor(memory);
 
         long i = 0;

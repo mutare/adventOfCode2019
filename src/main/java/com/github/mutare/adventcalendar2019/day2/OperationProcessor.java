@@ -1,12 +1,10 @@
 package com.github.mutare.adventcalendar2019.day2;
 
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static com.github.mutare.adventcalendar2019.day2.Operation.OperationMode.immediate;
-import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.*;
-import static java.util.Arrays.asList;
+import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.adjusts_the_relative_base;
+import static com.github.mutare.adventcalendar2019.day2.Operation.OperationType.multiply;
 
 class OperationProcessor {
     private long[] memory;
@@ -23,7 +21,7 @@ class OperationProcessor {
         } else if (operation.type == Operation.OperationType.input) {
             memory[(int) operation.parameters[0]] = input.take();
         } else if (operation.type == Operation.OperationType.output) {
-            output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
+            output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : Operation.OperationMode.relative == operation.parametersModes[0] ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
         } else if (operation.type == Operation.OperationType.jump_if_true) {
             if (operation.parameters[0] != 0) {
                 return operation.parameters[1];
@@ -60,8 +58,10 @@ class OperationProcessor {
     private void getParameters(Operation operation, long index, AtomicLong base) {
 
         switch (operation.type) {
-            case add :
+            case add:
             case multiply:
+            case less:
+            case eq:
                 operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
                 operation.parameters[1] = readParameter(index + 2, operation.parametersModes[1], base);
                 operation.parameters[2] = readParameter(index + 3, operation.parametersModes[2], base, true);
@@ -75,12 +75,6 @@ class OperationProcessor {
                 operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
                 operation.parameters[1] = readParameter(index + 2, operation.parametersModes[1], base);
                 break;
-            case less:
-            case eq:
-                operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
-                operation.parameters[1] = readParameter(index + 2, operation.parametersModes[1], base);
-                operation.parameters[2] = readParameter(index + 3, operation.parametersModes[2], base, true);
-                break;
             case adjusts_the_relative_base:
                 operation.parameters[0] = readParameter(index + 1, operation.parametersModes[0], base);
                 break;
@@ -92,13 +86,13 @@ class OperationProcessor {
     }
 
     private long readParameter(long index, Operation.OperationMode parametersMode, AtomicLong base, boolean indexing) {
-        switch(parametersMode) {
+        switch (parametersMode) {
             case immediate:
                 return memory[(int) index];
             case relative:
-                return indexing ? (int) memory[(int)index]+ base.get() : memory[(int) memory[(int) (index)] + (int)base.get()];
+                return indexing ? ((int) memory[(int) index] + (int) base.get()) : memory[(int) memory[(int) index] + (int) base.get()];
             case position:
-                return indexing ? memory[(int) index] : memory[(int) memory[(int)index]];
+                return indexing ? memory[(int) index] : memory[(int) memory[(int) index]];
             default:
                 throw new RuntimeException();
         }

@@ -10,9 +10,10 @@ public class ShipComputer {
 
     private AtomicLong base = new AtomicLong(0);
     private long[] memory = new long[40960];
-
+    private int operaionCount = 0;
 
     public long[] proccess(long ... program) throws InterruptedException {
+
         System.arraycopy(program, 0, memory, 0, program.length);
         OperationProcessor operationProcessor = new OperationProcessor(memory);
 
@@ -20,6 +21,7 @@ public class ShipComputer {
         Operation operation;
         while ((operation = operationProcessor.parseOperation(i, base)).type != Operation.OperationType.end) {
             i = operationProcessor.process(operation, i, input, output, base);
+            operaionCount++;
         }
         return memory;
     }

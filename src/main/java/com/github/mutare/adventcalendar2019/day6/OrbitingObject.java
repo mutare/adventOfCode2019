@@ -1,12 +1,7 @@
 package com.github.mutare.adventcalendar2019.day6;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-public class OrbitingObject {
-    String name;
-    private Set<OrbitingObject> orbitingObjects = new HashSet<>();
+class OrbitingObject {
+    final String name;
     OrbitingObject centralObject;
 
     OrbitingObject(String name) {
@@ -29,7 +24,4 @@ public class OrbitingObject {
         return this.name.equals(((OrbitingObject) obj).name);
     }
 
-    void addOrbiting(OrbitingObject orbiting) {
-        orbitingObjects.add(orbiting);
-    }
 }

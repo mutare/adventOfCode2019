@@ -3,10 +3,10 @@ package com.github.mutare.adventcalendar2019.day10;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MonitoringStation {
-    char[][] map;
+class MonitoringStation {
+    final char[][] map;
     char[][] visibleAsteroidsMap;
-    Asteroid monitorStationLocation;
+    final Asteroid monitorStationLocation;
 
     MonitoringStation(char[][] map) {
         this.map = map;

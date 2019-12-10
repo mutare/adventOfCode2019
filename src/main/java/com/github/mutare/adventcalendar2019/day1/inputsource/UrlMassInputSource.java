@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.stream.Stream;
 
 public class UrlMassInputSource implements MassInputSource {
-    String url = "https://adventofcode.com/2019/day/1/input";
+    private final static String url = "https://adventofcode.com/2019/day/1/input";
 
     @Override
     public Stream<Integer> getMasses() throws IOException {

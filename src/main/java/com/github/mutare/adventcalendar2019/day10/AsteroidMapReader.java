@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AsteroidMapReader {
+class AsteroidMapReader {
     public char[][] getMap(String path) throws IOException {
         List<String> mapLines = new LinkedList<>();
         try (InputStream is = AsteroidMapReader.class.getResourceAsStream(path)) {

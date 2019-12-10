@@ -4,13 +4,11 @@ import com.github.mutare.adventcalendar2019.day2.ShipComputer;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Amplifier extends Thread {
-    private ShipComputer shipComputer;
-    private int phase;
-    private long[] program;
+class Amplifier extends Thread {
+    private final ShipComputer shipComputer;
+    private final long[] program;
 
     public Amplifier(long[] program, int phase) {
-        this.phase = phase;
         this.program = program;
         this.shipComputer = new ShipComputer();
         this.shipComputer.input(phase);
@@ -25,16 +23,16 @@ public class Amplifier extends Thread {
         }
     }
 
-    public void amplify() throws InterruptedException {
+    public void amplify() {
         this.start();
     }
 
     void setInput(LinkedBlockingQueue<Long> input) {
         if (this.shipComputer.getInput().size() > 0) {
-            while(!input.isEmpty()) {
+            while (!input.isEmpty()) {
                 this.shipComputer.getInput().add(input.poll());
             }
-            while(!this.shipComputer.getInput().isEmpty()) {
+            while (!this.shipComputer.getInput().isEmpty()) {
                 input.add(this.shipComputer.getInput().poll());
             }
         }

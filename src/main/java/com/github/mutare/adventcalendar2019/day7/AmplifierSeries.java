@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class AmplifierSeries {
+class AmplifierSeries {
 
-    List<Amplifier> amplifiers = new LinkedList<>();
-    private LinkedBlockingQueue<Long> output;
+    private final List<Amplifier> amplifiers = new LinkedList<>();
+    private final LinkedBlockingQueue<Long> output;
 
     public AmplifierSeries(long[] program, boolean feedbackLoop, int... phases) {
         for (int phase : phases) {

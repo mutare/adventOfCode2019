@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SpaceImageFormatTest {
 
-    private int[] image = new FileImageInputSource().getImage();
+    private final int[] image = new FileImageInputSource().getImage();
 
     public SpaceImageFormatTest() throws IOException {
     }

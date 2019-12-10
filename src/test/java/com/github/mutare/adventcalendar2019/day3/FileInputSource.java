@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 class FileInputSource {
 
-    private List<String> lines = new LinkedList<>();
+    private final List<String> lines = new LinkedList<>();
 
     FileInputSource() {
         try {

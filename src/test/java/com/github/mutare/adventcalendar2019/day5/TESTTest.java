@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class TESTTest {
 
-    private ShipComputer shipComputer = new ShipComputer();
+    private final ShipComputer shipComputer = new ShipComputer();
 
     @Test
     public void test() throws InterruptedException {

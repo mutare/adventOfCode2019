@@ -9,10 +9,10 @@ import static org.junit.Assert.*;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class SecureContainerTest {
-    private CodeVerifier sixDigitsVerifier = new SixDigitsVerifier();
-    private CodeVerifier digitsFromLeftToRightNeverDecreaseVerifier = new DigitsFromLeftToRightNeverDecreaseVerifier();
-    private CodeVerifier twoAdjacentDigitsAreTheSameVerifier = new TwoAdjacentDigitsAreTheSameVerifier();
-    private CodeVerifier onlyTwoAdjacentDigitsAreTheSameVerifier = new OnlyTwoAdjacentDigitsAreTheSameVerifier();
+    private final CodeVerifier sixDigitsVerifier = new SixDigitsVerifier();
+    private final CodeVerifier digitsFromLeftToRightNeverDecreaseVerifier = new DigitsFromLeftToRightNeverDecreaseVerifier();
+    private final CodeVerifier twoAdjacentDigitsAreTheSameVerifier = new TwoAdjacentDigitsAreTheSameVerifier();
+    private final CodeVerifier onlyTwoAdjacentDigitsAreTheSameVerifier = new OnlyTwoAdjacentDigitsAreTheSameVerifier();
     private CodeVerifier rangeVerifier = new RangeVerifier(372304, 847060);
 
     @Test

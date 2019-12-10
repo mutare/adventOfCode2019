@@ -9,7 +9,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class MonitoringStationTest {
 
-    private AsteroidMapReader asteroidMapReader = new AsteroidMapReader();
+    private final AsteroidMapReader asteroidMapReader = new AsteroidMapReader();
 
     @Test
     public void test0() throws IOException {
@@ -45,9 +45,9 @@ public class MonitoringStationTest {
     }
 
     private void printMap(char[][] map) {
-        for (int j = 0; j < map.length; j++) {
+        for (char[] chars : map) {
             for (int i = 0; i < map[0].length; i++) {
-                System.out.print(map[j][i]);
+                System.out.print(chars[i]);
             }
             System.out.println();
         }

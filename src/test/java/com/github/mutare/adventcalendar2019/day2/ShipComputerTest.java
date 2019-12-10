@@ -5,7 +5,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import static java.util.Arrays.copyOf;
 import static org.junit.Assert.*;
@@ -13,7 +12,7 @@ import static org.junit.Assert.*;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class ShipComputerTest {
 
-    private ShipComputer shipComputer = new ShipComputer();
+    private final ShipComputer shipComputer = new ShipComputer();
 
     @Test
     public void test() throws InterruptedException {
@@ -48,6 +47,6 @@ public class ShipComputerTest {
                 }
             }
         }
-        assertTrue(false);
+        fail();
     }
 }

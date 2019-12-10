@@ -4,6 +4,7 @@ import com.github.mutare.adventcalendar2019.day1.fuelcalculator.AllFuelCalculato
 import com.github.mutare.adventcalendar2019.day1.fuelcalculator.MassFuelCalculator;
 import com.github.mutare.adventcalendar2019.day1.inputsource.FileMassInputSource;
 import com.github.mutare.adventcalendar2019.day1.inputsource.MassInputSource;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,7 +25,12 @@ public class FuelSummatorTest {
     private MassFuelCalculator fuelCalculator;
 
     @InjectMocks
-    private FuelSummator fuelSummator = new FuelSummator(fuelCalculator);
+    private FuelSummator fuelSummator;
+
+    @Before
+    public void setUp() {
+        fuelSummator = new FuelSummator(fuelCalculator);
+    }
 
 
     @Test

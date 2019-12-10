@@ -6,11 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CrossedWiresAnalyzer {
+class CrossedWiresAnalyzer {
 
-    private List<List<Point>> paths = new LinkedList<>();
-    private List<Point> intersections;
-    private List<Map<Point, Integer>> intersectionStepValues = new ArrayList<>();
+    private final List<List<Point>> paths = new LinkedList<>();
+    private final List<Point> intersections;
 
     public CrossedWiresAnalyzer(Stream<String> line1, Stream<String> line2) {
         paths.add(createCoordsFor(line1.collect(Collectors.toList())));
@@ -23,10 +22,8 @@ public class CrossedWiresAnalyzer {
         int x = 0;
         int y = 0;
         coords.add(new Point(x, y));
-        Iterator<String> iterator = line.iterator();
-        while (iterator.hasNext()) {
+        for (String next : line) {
 
-            String next = iterator.next();
             int value = Integer.parseInt(next.substring(1));
             switch (next.charAt(0)) {
                 case 'R':
@@ -85,7 +82,7 @@ public class CrossedWiresAnalyzer {
 
     public int getLowestCombinedStepsToReachIntersection() {
         int combinedSteps = Integer.MAX_VALUE;
-        for (int i = 0 ; i < intersections.size() ; i++) {
+        for (int i = 0; i < intersections.size(); i++) {
             Point intersection = intersections.get(i);
             if (i == 0) {
                 continue;
@@ -103,11 +100,7 @@ public class CrossedWiresAnalyzer {
         Map<Point, Integer> middleSteps = new HashMap<>();
         int step = 0;
         for (Point wirePoint : wirePath) {
-            //if (middleSteps.containsKey(wirePoint)) {
-            //    step = middleSteps.get(wirePoint);
-            //} else {
-                middleSteps.put(wirePoint, step);
-            //}
+            middleSteps.put(wirePoint, step);
             if (wirePoint.equals(intersection)) {
                 return step;
             }

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-public class FileProgramInputSource {
+class FileProgramInputSource {
     public long[] getProgram() throws IOException {
         Collection<Integer> program = new LinkedList<>();
         try (InputStream is = FileProgramInputSource.class.getResourceAsStream("/day5/data")) {
@@ -17,9 +17,9 @@ public class FileProgramInputSource {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                program.addAll(Arrays.asList(line.split(",")).stream().map(Integer::parseInt).collect(Collectors.toList()));
+                program.addAll(Arrays.stream(line.split(",")).map(Integer::parseInt).collect(Collectors.toList()));
             }
         }
-        return program.stream().mapToLong(value -> value.longValue()).toArray();
+        return program.stream().mapToLong(Integer::longValue).toArray();
     }
 }

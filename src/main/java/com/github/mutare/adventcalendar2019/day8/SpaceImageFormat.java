@@ -1,10 +1,10 @@
 package com.github.mutare.adventcalendar2019.day8;
 
-public class SpaceImageFormat {
+class SpaceImageFormat {
     private final int width;
     private final int height;
     private final int layers;
-    int[] image;
+    private final int[] image;
 
     public SpaceImageFormat(int[] image, int width, int height) {
         this.image = image;

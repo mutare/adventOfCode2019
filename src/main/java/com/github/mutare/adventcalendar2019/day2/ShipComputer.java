@@ -7,11 +7,11 @@ import static java.lang.System.arraycopy;
 
 public class ShipComputer {
 
-    LinkedBlockingQueue<Long> input = new LinkedBlockingQueue<>();
-    LinkedBlockingQueue<Long> output = new LinkedBlockingQueue<>();
+    private LinkedBlockingQueue<Long> input = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<Long> output = new LinkedBlockingQueue<>();
 
-    private AtomicLong base = new AtomicLong(0);
-    private long[] memory = new long[40960];
+    private final AtomicLong base = new AtomicLong(0);
+    private final long[] memory = new long[40960];
     private int operaionCount = 0;
 
     public long[] proccess(long ... program) throws InterruptedException {

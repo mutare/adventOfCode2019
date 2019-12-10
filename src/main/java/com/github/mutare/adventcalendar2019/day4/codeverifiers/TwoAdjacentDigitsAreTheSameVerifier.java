@@ -4,11 +4,11 @@ import java.util.Set;
 
 public class TwoAdjacentDigitsAreTheSameVerifier implements CodeVerifier {
 
-    private DigitGroupper digitGroupper = new DigitGroupper();
+    private final DigitGrouper digitGrouper = new DigitGrouper();
 
     @Override
     public boolean verify(int code) {
-        Set<Integer> group = digitGroupper.group(Integer.toString(code));
+        Set<Integer> group = digitGrouper.group(Integer.toString(code));
 
         for (Integer count : group) {
             if (count >= 2) {

@@ -12,7 +12,7 @@ public class AllFuelCalculator implements FuelCalculator {
         return sum;
     }
 
-    int internalCalculate(int mass) {
+    private int internalCalculate(int mass) {
         return mass > 0 ? (Math.floorDiv(mass, 3) - 2) : 0;
     }
 }

@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 public class AmplificationCircuitTest {
 
-    private List<int[]> permutations = new ArrayList<>();
+    private final List<int[]> permutations = new ArrayList<>();
 
     @Test
     public void testSimpleAmplifier() throws InterruptedException {

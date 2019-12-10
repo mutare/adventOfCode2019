@@ -4,7 +4,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 class OperationProcessor {
-    private long[] memory;
+    private final long[] memory;
 
     OperationProcessor(long[] memory) {
         this.memory = memory;

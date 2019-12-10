@@ -4,7 +4,7 @@ import com.github.mutare.adventcalendar2019.day4.codeverifiers.CodeVerifier;
 
 public class SecurityContainerImpl implements SecurityContainer {
 
-    private CodeVerifier[] verifiers;
+    private final CodeVerifier[] verifiers;
 
     public SecurityContainerImpl(CodeVerifier... verifiers) {
         this.verifiers = verifiers;

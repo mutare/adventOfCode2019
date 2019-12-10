@@ -4,13 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class FileImageInputSource {
+class FileImageInputSource {
     public int[] getImage() throws IOException {
         List<Integer> image = new LinkedList<>();
         try (InputStream is = FileImageInputSource.class.getResourceAsStream("/day8/data")) {

@@ -19,7 +19,7 @@ public class Operation {
         immediate,
         relative;
 
-        public static OperationMode valueOf(int i) {
+        static OperationMode valueOf(int i) {
             switch (i) {
                 case 0 : return OperationMode.position;
                 case 1 : return OperationMode.immediate;
@@ -48,10 +48,10 @@ public class Operation {
             this.noOfParameters = noOfParameters;
         }
 
-        int code;
-        int noOfParameters;
+        final int code;
+        final int noOfParameters;
 
-        public static OperationType valueOf(int i) {
+        static OperationType valueOf(int i) {
             return Stream.of(values())
                     .filter(operation -> operation.code == i)
                     .findFirst()
@@ -60,6 +60,6 @@ public class Operation {
     }
 
     OperationType type;
-    OperationMode[] parametersModes = new OperationMode[3];
-    long[] parameters = new long[3];
+    final OperationMode[] parametersModes = new OperationMode[3];
+    final long[] parameters = new long[3];
 }

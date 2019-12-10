@@ -11,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class CrossedWiresAnalyzerTest {
 
-    private FileInputSource fileInputSource = new FileInputSource();
+    private final FileInputSource fileInputSource = new FileInputSource();
 
     private CrossedWiresAnalyzer crossedWiresAnalyzer;
 

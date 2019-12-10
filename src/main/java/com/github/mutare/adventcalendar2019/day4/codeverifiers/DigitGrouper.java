@@ -3,7 +3,7 @@ package com.github.mutare.adventcalendar2019.day4.codeverifiers;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DigitGroupper {
+class DigitGrouper {
     public Set<Integer> group(String str) {
         Set<Integer> counts = new HashSet<>();
         char lastChar = str.toCharArray()[0];

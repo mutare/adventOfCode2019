@@ -14,7 +14,7 @@ public class PaintingRobotTest {
         paintingRobot.join();
         assertEquals(2336, paintingRobot.getNumberOfPaintedPanels());
 
-        paintPaint(paintingRobot.getGrid(), 100, 100);
+        paintPaint(paintingRobot.getGrid());
     }
 
     @Test
@@ -24,13 +24,13 @@ public class PaintingRobotTest {
         paintingRobot.paint();
         paintingRobot.join();
 
-        paintPaint(paintingRobot.getGrid(), 30, 100);
+        paintPaint(paintingRobot.getGrid());
     }
 
-    private void paintPaint(char[][] grid, int x, int y) {
-        for (int i = 0 ; i < x ; i++) {
-            for (int j = 0 ; j < y ; j++) {
-                System.out.print(grid[j][i]);
+    private void paintPaint(char[][] grid) {
+        for (int i = 0 ; i < grid[0].length ; i++) {
+            for (char[] chars : grid) {
+                System.out.print(chars[i]);
             }
             System.out.println();
         }

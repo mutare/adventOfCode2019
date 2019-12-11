@@ -1,8 +1,8 @@
 package com.github.mutare.adventcalendar2019.day11;
 
 class Panel {
-    private int x;
-    private int y;
+    int x;
+    int y;
 
     Panel(int x, int y) {
         this.x = x;

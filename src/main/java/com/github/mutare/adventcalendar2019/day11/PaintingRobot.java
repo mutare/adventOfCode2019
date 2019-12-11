@@ -4,6 +4,8 @@ import com.github.mutare.adventcalendar2019.day2.ShipComputer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PaintingRobot extends Thread {
     private final ShipComputer shipComputer = new ShipComputer();
@@ -22,19 +24,16 @@ public class PaintingRobot extends Thread {
 
     public void paint() throws InterruptedException {
         finish = false;
-        this.start();
+        start();
 
-        while (!finish) {
+
+        while (true) {
             shipComputer.input(inputByPosition(x, y));
-            while (shipComputer.output().isEmpty()) {
-                Thread.sleep(1);
-                if (finish) return;
-            }
-            paintOnGrid(shipComputer.output().take().intValue());
-            while (shipComputer.output().isEmpty()) {
-                Thread.sleep(1);
-                if (finish) return;
-            }
+
+            while (shipComputer.output().isEmpty()) if (finish) return;
+            paintOnGrid(shipComputer.output().take());
+
+            while (shipComputer.output().isEmpty()) if (finish) return;
             turn(shipComputer.output().take());
             move();
         }
@@ -65,7 +64,7 @@ public class PaintingRobot extends Thread {
         direction = (direction + 4) % 4;
     }
 
-    void paintOnGrid(int paint) {
+    void paintOnGrid(long paint) {
         gridMap.put(new Panel(x, y), paint == 1 ? '#' : '.');
     }
 
@@ -89,10 +88,16 @@ public class PaintingRobot extends Thread {
 
 
     public char[][] getGrid() {
-        char[][] grid = new char[100][100];
-        for (int i = 0; i < 100; i++)
-            for (int j = 0; j < 100; j++) {
-                Panel p = new Panel(i, j);
+        Set<Panel> collect = gridMap.entrySet().stream().filter(panelCharacterEntry -> panelCharacterEntry.getValue() == '#').map(Map.Entry::getKey).collect(Collectors.toSet());
+        int minX = collect.stream().map(panel -> panel.x).min(Integer::compareTo).orElseThrow();
+        int minY = collect.stream().map(panel -> panel.y).min(Integer::compareTo).orElseThrow();
+        int maxX = collect.stream().map(panel -> panel.x).max(Integer::compareTo).orElseThrow();
+        int maxY = collect.stream().map(panel -> panel.y).max(Integer::compareTo).orElseThrow();
+
+        char[][] grid = new char[maxX - minX + 1][maxY - minY + 1];
+        for (int i = 0; i < maxX - minX + 1; i++)
+            for (int j = 0; j < maxY - minY + 1; j++) {
+                Panel p = new Panel(i + minX, j + minY);
                 grid[i][j] = gridMap.getOrDefault(p, '.');
             }
         return grid;

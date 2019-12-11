@@ -14,17 +14,17 @@ public class PaintingRobotTest {
         paintingRobot.join();
         assertEquals(2336, paintingRobot.getNumberOfPaintedPanels());
 
-        paintPaint(paintingRobot.grid, 100, 100);
+        paintPaint(paintingRobot.getGrid(), 100, 100);
     }
 
     @Test
     public void two() throws IOException, InterruptedException {
-        PaintingRobot paintingRobot = new PaintingRobot(new FileProgramInputSource().getProgram(), 100, 30);
-        paintingRobot.paintOnGrid(1, paintingRobot.x, paintingRobot.y);
+        PaintingRobot paintingRobot = new PaintingRobot(new FileProgramInputSource().getProgram());
+        paintingRobot.paintOnGrid(1);
         paintingRobot.paint();
         paintingRobot.join();
 
-        paintPaint(paintingRobot.grid, 30, 100);
+        paintPaint(paintingRobot.getGrid(), 30, 100);
     }
 
     private void paintPaint(char[][] grid, int x, int y) {

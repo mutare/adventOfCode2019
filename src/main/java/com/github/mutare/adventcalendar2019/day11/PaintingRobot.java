@@ -2,39 +2,22 @@ package com.github.mutare.adventcalendar2019.day11;
 
 import com.github.mutare.adventcalendar2019.day2.ShipComputer;
 
-public class PaintingRobot extends Thread {
-    private final int width;
-    private final int height;
+import java.util.HashMap;
+import java.util.Map;
 
+public class PaintingRobot extends Thread {
     private final ShipComputer shipComputer = new ShipComputer();
 
     private long[] program;
-    char[][] grid;
-    private int[][] wasPainted;
-    private int paintings = 0;
+    private Map<Panel, Character> gridMap = new HashMap<>();
 
-    int x;
-    int y;
+    private int x = 0;
+    private int y = 0;
     private int direction = 0;//0 - north,  1 - east, 2 - south, 3 - west
     private boolean finish;
 
     public PaintingRobot(long[] program) {
-        this(program, 100, 100);
-    }
-
-    public PaintingRobot(long[] program, int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.x = width / 2;
-        this.y = height / 2;
-        this.grid = new char[width][height];
-        this.wasPainted = new int[width][height];
         this.program = program;
-        for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++) {
-                grid[i][j] = '.';
-                wasPainted[i][j] = 0;
-            }
     }
 
     public void paint() throws InterruptedException {
@@ -47,7 +30,7 @@ public class PaintingRobot extends Thread {
                 Thread.sleep(1);
                 if (finish) return;
             }
-            paintOnGrid(shipComputer.output().take().intValue(), x, y);
+            paintOnGrid(shipComputer.output().take().intValue());
             while (shipComputer.output().isEmpty()) {
                 Thread.sleep(1);
                 if (finish) return;
@@ -82,13 +65,12 @@ public class PaintingRobot extends Thread {
         direction = (direction + 4) % 4;
     }
 
-    void paintOnGrid(int paint, int x, int y) {
-        grid[x][y] = paint == 1 ? '#' : '.';
-        if (wasPainted[x][y] == 0) wasPainted[x][y] = 1;
+    void paintOnGrid(int paint) {
+        gridMap.put(new Panel(x, y), paint == 1 ? '#' : '.');
     }
 
     private long inputByPosition(int x, int y) {
-        return grid[x][y] == '.' ? 0 : 1;
+        return gridMap.containsKey(new Panel(x, y)) ? gridMap.get(new Panel(x, y)) == '.' ? 0 : 1 : 0;
     }
 
     @Override
@@ -102,13 +84,17 @@ public class PaintingRobot extends Thread {
     }
 
     public int getNumberOfPaintedPanels() {
-        int count = 0;
-        for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++) {
-                if (wasPainted[i][j] == 1) count++;
-            }
-        return count;
+        return gridMap.keySet().size();
     }
 
 
+    public char[][] getGrid() {
+        char[][] grid = new char[100][100];
+        for (int i = 0; i < 100; i++)
+            for (int j = 0; j < 100; j++) {
+                Panel p = new Panel(i, j);
+                grid[i][j] = gridMap.getOrDefault(p, '.');
+            }
+        return grid;
+    }
 }

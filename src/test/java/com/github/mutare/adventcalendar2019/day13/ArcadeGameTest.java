@@ -1,6 +1,5 @@
 package com.github.mutare.adventcalendar2019.day13;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,15 +14,15 @@ public class ArcadeGameTest {
         arcadeGame.play();
 
         assertEquals(312, arcadeGame.getNumberOfBlockTiles());
+        arcadeGame.printGrid(System.out);
     }
 
     @Test
-    @Ignore
     public void two() throws IOException, InterruptedException {
-        ArcadeGame arcadeGame = new ArcadeGame(new FileProgramInputSource().getProgram());
-        arcadeGame.insertCons(2);
-        arcadeGame.play();
-        assertEquals(312, arcadeGame.getNumberOfBlockTiles());
+        Player player = new Player(new ArcadeGame(new FileProgramInputSource().getProgram()));
+        player.insertCoins(2);
+        player.play();
+        assertEquals(-1, player.getScore());
     }
 
 }

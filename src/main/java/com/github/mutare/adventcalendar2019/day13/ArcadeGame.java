@@ -2,6 +2,7 @@ package com.github.mutare.adventcalendar2019.day13;
 
 import com.github.mutare.adventcalendar2019.day2.ShipComputer;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,8 +10,33 @@ public class ArcadeGame extends Thread {
 
     private boolean finish;
 
-    public void insertCons(int i) {
+    private int score;
+
+    public void insertCoins(int i) {
         program[0] = i;
+    }
+
+    public boolean isFinish() {
+        return finish;
+    }
+
+
+    public void printGrid(PrintStream out) {
+        for (int j = 0; j < grid.length; j++) {
+            for (int i = 0; i < grid[0].length; i++) {
+                out.print(grid[j][i]);
+            }
+            out.println();
+        }
+        out.println();
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void move(int i) {
+        shipComputer.input(i);
     }
 
     static class Point {
@@ -34,13 +60,13 @@ public class ArcadeGame extends Thread {
     }
 
     private long[] program;
-    private int[] grid;
+    private int[][] grid = new int[42][24];
 
     private Map<Point, Integer> elements = new HashMap<>();
 
     private ShipComputer shipComputer = new ShipComputer();
 
-    public ArcadeGame(long[] program) throws InterruptedException {
+    public ArcadeGame(long[] program) {
         this.program = program;
     }
 
@@ -55,7 +81,8 @@ public class ArcadeGame extends Thread {
     }
 
     public void play() throws InterruptedException {
-        this.start();
+        finish = false;
+        start();
 
         while (!finish) {
             ArcadeGame.Point point = new ArcadeGame.Point();
@@ -67,12 +94,26 @@ public class ArcadeGame extends Thread {
             point.y = shipComputer.output().take().intValue();
 
             while (shipComputer.output().isEmpty()) if (finish) return;
-            elements.put(point, shipComputer.output().take().intValue());
+            int c = shipComputer.output().take().intValue();
+            if (point.x == -1 && point.y == 0) {
+                score = shipComputer.output().take().intValue();
+            } else {
+                elements.put(point, c);
+                grid[point.x][point.y] = c;
+            }
+            //printGrid(System.out);
         }
     }
 
-    public long getNumberOfBlockTiles() {
-        return elements.values().stream().filter(integer -> integer == 2).count();
+    public int getNumberOfBlockTiles() {
+        int i = 0;
+        for (int[] l : grid)
+            for(int c : l) {
+                if (c == 2) i++;
+            }
+
+        //return (int) elements.values().stream().filter(integer -> integer == 2).count();
+        return i;
     }
 
 }

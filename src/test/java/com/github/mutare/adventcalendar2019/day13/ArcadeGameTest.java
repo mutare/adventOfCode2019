@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 public class ArcadeGameTest {
 
     @Test
-    @Ignore
     public void one() throws IOException, InterruptedException {
         ArcadeGame arcadeGame = new ArcadeGame(new FileProgramInputSource().getProgram());
         arcadeGame.play();

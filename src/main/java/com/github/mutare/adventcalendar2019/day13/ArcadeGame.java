@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ArcadeGame extends Thread {
 
-    private boolean finished;
+    private boolean finish;
 
     public void insertCons(int i) {
         program[0] = i;
@@ -47,9 +47,8 @@ public class ArcadeGame extends Thread {
     @Override
     public void run() {
         try {
-            //shipComputer.setOutputCallback();
             shipComputer.proccess(program);
-            finished = true;
+            finish = true;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -58,12 +57,17 @@ public class ArcadeGame extends Thread {
     public void play() throws InterruptedException {
         this.start();
 
-        while (!finished) {
+        while (!finish) {
             ArcadeGame.Point point = new ArcadeGame.Point();
 
-            //point.x = shipComputer.getOutput().take().intValue();
-            //point.y = shipComputer.getOutput().take().intValue();
-            //elements.put(point, shipComputer.getOutput().take().intValue());
+            while (shipComputer.output().isEmpty()) if (finish) return;
+            point.x = shipComputer.output().take().intValue();
+
+            while (shipComputer.output().isEmpty()) if (finish) return;
+            point.y = shipComputer.output().take().intValue();
+
+            while (shipComputer.output().isEmpty()) if (finish) return;
+            elements.put(point, shipComputer.output().take().intValue());
         }
     }
 

@@ -44,6 +44,6 @@ class Amplifier extends Thread {
     }
 
     public LinkedBlockingQueue<Long> getOutput() {
-        return shipComputer.output();
+        return shipComputer.getOutput();
     }
 }

@@ -87,16 +87,16 @@ public class ArcadeGame extends Thread {
         while (!finish) {
             ArcadeGame.Point point = new ArcadeGame.Point();
 
-            while (shipComputer.output().isEmpty()) if (finish) return;
-            point.x = shipComputer.output().take().intValue();
+            while (shipComputer.getOutput().isEmpty()) if (finish) return;
+            point.x = shipComputer.getOutput().take().intValue();
 
-            while (shipComputer.output().isEmpty()) if (finish) return;
-            point.y = shipComputer.output().take().intValue();
+            while (shipComputer.getOutput().isEmpty()) if (finish) return;
+            point.y = shipComputer.getOutput().take().intValue();
 
-            while (shipComputer.output().isEmpty()) if (finish) return;
-            int c = shipComputer.output().take().intValue();
+            while (shipComputer.getOutput().isEmpty()) if (finish) return;
+            int c = shipComputer.getOutput().take().intValue();
             if (point.x == -1 && point.y == 0) {
-                score = shipComputer.output().take().intValue();
+                score = shipComputer.getOutput().take().intValue();
             } else {
                 elements.put(point, c);
                 grid[point.x][point.y] = c;

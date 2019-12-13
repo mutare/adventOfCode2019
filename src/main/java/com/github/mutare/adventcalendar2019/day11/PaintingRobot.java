@@ -30,11 +30,11 @@ public class PaintingRobot extends Thread {
         while (true) {
             shipComputer.input(inputByPosition(x, y));
 
-            while (shipComputer.output().isEmpty()) if (finish) return;
-            paintOnGrid(shipComputer.output().take());
+            while (shipComputer.getOutput().isEmpty()) if (finish) return;
+            paintOnGrid(shipComputer.getOutput().take());
 
-            while (shipComputer.output().isEmpty()) if (finish) return;
-            turn(shipComputer.output().take());
+            while (shipComputer.getOutput().isEmpty()) if (finish) return;
+            turn(shipComputer.getOutput().take());
             move();
         }
     }

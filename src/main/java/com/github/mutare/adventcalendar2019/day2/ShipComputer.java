@@ -37,7 +37,7 @@ public class ShipComputer {
         }
     }
 
-    public LinkedBlockingQueue<Long> output() {
+    public LinkedBlockingQueue<Long> getOutput() {
         return output;
     }
 

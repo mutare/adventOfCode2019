@@ -21,7 +21,7 @@ public class AmplificationCircuitTest {
 
         amplifier.setInput(0);
         amplifier.amplify();
-        assertEquals(4, amplifier.getOutput().take().intValue());
+        assertEquals(4, amplifier.getOutput().poll());
     }
 
     @Test
@@ -30,7 +30,7 @@ public class AmplificationCircuitTest {
 
         AmplifierSeries amplifierSeries = new AmplifierSeries(program, false, 4);
         amplifierSeries.amplify();
-        assertEquals(4, amplifierSeries.getOutput().take().intValue());
+        assertEquals(4, amplifierSeries.getOutput().poll());
     }
 
     @Test
@@ -38,7 +38,7 @@ public class AmplificationCircuitTest {
         long[] program = new long[]{3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0};
         AmplifierSeries amplifierSeries = new AmplifierSeries(program, false, 4, 3, 2, 1, 0);
         amplifierSeries.amplify();
-        assertEquals(43210, amplifierSeries.getOutput().take().intValue());
+        assertEquals(43210, amplifierSeries.getOutput().poll());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class AmplificationCircuitTest {
                 101, 5, 23, 23, 1, 24, 23, 23, 4, 23, 99, 0, 0};
         AmplifierSeries amplifierSeries = new AmplifierSeries(program, false, 0, 1, 2, 3, 4);
         amplifierSeries.amplify();
-        assertEquals(54321, amplifierSeries.getOutput().take().intValue());
+        assertEquals(54321, amplifierSeries.getOutput().poll());
     }
 
     @Test
@@ -56,7 +56,7 @@ public class AmplificationCircuitTest {
                 1002, 33, 7, 33, 1, 33, 31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0};
         AmplifierSeries amplifierSeries = new AmplifierSeries(program, false, 1, 0, 4, 3, 2);
         amplifierSeries.amplify();
-        assertEquals(65210, amplifierSeries.getOutput().take().intValue());
+        assertEquals(65210, amplifierSeries.getOutput().poll());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class AmplificationCircuitTest {
             long[] program = new long[]{3, 8, 1001, 8, 10, 8, 105, 1, 0, 0, 21, 46, 67, 76, 97, 118, 199, 280, 361, 442, 99999, 3, 9, 1002, 9, 3, 9, 101, 4, 9, 9, 102, 3, 9, 9, 1001, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 101, 5, 9, 9, 1002, 9, 2, 9, 101, 2, 9, 9, 4, 9, 99, 3, 9, 101, 4, 9, 9, 4, 9, 99, 3, 9, 1001, 9, 4, 9, 102, 2, 9, 9, 1001, 9, 4, 9, 1002, 9, 5, 9, 4, 9, 99, 3, 9, 102, 3, 9, 9, 1001, 9, 2, 9, 1002, 9, 3, 9, 1001, 9, 3, 9, 4, 9, 99, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 99, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 99, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 99, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99};
             AmplifierSeries amplifierSeries = new AmplifierSeries(program, false, phases);
             amplifierSeries.amplify();
-            long r = amplifierSeries.getOutput().take();
+            long r = amplifierSeries.getOutput().poll();
             if (r > max) {
                 max = r;
             }
@@ -101,7 +101,7 @@ public class AmplificationCircuitTest {
         long[] program = new long[]{3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001, 28, -1, 28, 1005, 28, 6, 99, 0, 0, 5};
         AmplifierSeries amplifierSeries = new AmplifierSeries(program, true, a);
         amplifierSeries.amplify();
-        long r = amplifierSeries.getOutput().take();
+        long r = amplifierSeries.getOutput().poll();
 
         assertEquals(139629729, r);
     }
@@ -115,7 +115,7 @@ public class AmplificationCircuitTest {
                 53, 1001, 56, -1, 56, 1005, 56, 6, 99, 0, 0, 0, 0, 10};
         AmplifierSeries amplifierSeries = new AmplifierSeries(program, true, a);
         amplifierSeries.amplify();
-        long r = amplifierSeries.getOutput().take();
+        long r = amplifierSeries.getOutput().poll();
 
         assertEquals(18216, r);
     }
@@ -132,7 +132,7 @@ public class AmplificationCircuitTest {
             long[] program = new long[]{3, 8, 1001, 8, 10, 8, 105, 1, 0, 0, 21, 46, 67, 76, 97, 118, 199, 280, 361, 442, 99999, 3, 9, 1002, 9, 3, 9, 101, 4, 9, 9, 102, 3, 9, 9, 1001, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 101, 5, 9, 9, 1002, 9, 2, 9, 101, 2, 9, 9, 4, 9, 99, 3, 9, 101, 4, 9, 9, 4, 9, 99, 3, 9, 1001, 9, 4, 9, 102, 2, 9, 9, 1001, 9, 4, 9, 1002, 9, 5, 9, 4, 9, 99, 3, 9, 102, 3, 9, 9, 1001, 9, 2, 9, 1002, 9, 3, 9, 1001, 9, 3, 9, 4, 9, 99, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 99, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 99, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 99, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 1001, 9, 1, 9, 4, 9, 99, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 3, 9, 101, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 101, 1, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 102, 2, 9, 9, 4, 9, 3, 9, 1001, 9, 2, 9, 4, 9, 3, 9, 1002, 9, 2, 9, 4, 9, 99};
             AmplifierSeries amplifierSeries = new AmplifierSeries(program, true, phases);
             amplifierSeries.amplify();
-            long r = amplifierSeries.getOutput().take();
+            long r = amplifierSeries.getOutput().poll();
             if (r > max) {
                 max = r;
             }

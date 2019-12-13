@@ -48,11 +48,11 @@ public class TESTTest {
         shipComputer.input(1);
         shipComputer.proccess(program);
 
-        Collection<Long> collect = shipComputer.getOutput();
+        ShipComputer.InputOutput collect = shipComputer.getOutput();
         assertEquals(10, collect.size());
-        Iterator<Long> iterator = collect.iterator();
-        for (int i = 0; i < collect.size() - 1; i++) iterator.next();
-        assertEquals(13285749, iterator.next().intValue());
+        int size = collect.size();
+        for (int i = 0; i < size - 1; i++) collect.poll();
+        assertEquals(13285749, collect.poll());
     }
 
     @Test
@@ -61,81 +61,81 @@ public class TESTTest {
         shipComputer.input(5);
         shipComputer.proccess(program);
 
-        Collection<Long> collect = shipComputer.getOutput();
+        ShipComputer.InputOutput collect = shipComputer.getOutput();
         assertEquals(1, collect.size());
-        assertEquals(5000972, collect.iterator().next().intValue());
+        assertEquals(5000972, collect.poll());
     }
 
     @Test
     public void testJumpImmediateMode() throws InterruptedException {
         shipComputer.input(0);
         shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(0, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(0, collect0.poll());
         shipComputer.input(1);
         shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(1, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(1, collect1.poll());
     }
 
     @Test
     public void testJumpPoisiotionMode() throws InterruptedException {
         shipComputer.input(0);
         shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(0, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(0, collect0.poll());
         shipComputer.input(1);
         shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(1, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(1, collect1.poll());
     }
 
     @Test
     public void testEqPositionMode() throws InterruptedException {
         shipComputer.input(8);
         shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(1, collect0.poll());
         shipComputer.input(7);
         shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(0, collect1.poll());
     }
 
     @Test
     public void testLessPositionMode() throws InterruptedException {
         shipComputer.input(7);
         shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(1, collect0.poll());
         shipComputer.input(8);
         shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(0, collect1.poll());
     }
 
     @Test
     public void testEqImmediateMode() throws InterruptedException {
         shipComputer.input(8);
         shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(1, collect0.poll());
         shipComputer.input(7);
         shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(0, collect1.poll());
     }
 
     @Test
     public void testLessImmediateMode() throws InterruptedException {
         shipComputer.input(7);
         shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(1, collect0.poll());
         shipComputer.input(8);
         shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(0, collect1.poll());
     }
 
     @Test
@@ -146,16 +146,16 @@ public class TESTTest {
 
         shipComputer.input(7);
         shipComputer.proccess(program);
-        LinkedBlockingQueue<Long> collect0 = shipComputer.getOutput();
-        assertEquals(999, collect0.take().intValue());
+        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
+        assertEquals(999, collect0.poll());
         shipComputer.input(8);
         shipComputer.proccess(program);
-        LinkedBlockingQueue<Long> collect1 = shipComputer.getOutput();
-        assertEquals(1000, collect1.take().intValue());
+        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
+        assertEquals(1000, collect1.poll());
 
         shipComputer.input(9);
         shipComputer.proccess(program);
-        LinkedBlockingQueue<Long> collect2 = shipComputer.getOutput();
-        assertEquals(1001, collect2.take().intValue());
+        ShipComputer.InputOutput collect2 = shipComputer.getOutput();
+        assertEquals(1001, collect2.poll());
     }
 }

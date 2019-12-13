@@ -1,6 +1,5 @@
 package com.github.mutare.adventcalendar2019.day2;
 
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 class OperationProcessor {
@@ -10,7 +9,7 @@ class OperationProcessor {
         this.memory = memory;
     }
 
-    long process(Operation operation, long index, LinkedBlockingQueue<Long> input, LinkedBlockingQueue<Long> output, AtomicLong base) throws InterruptedException {
+    long process(Operation operation, long index, ShipComputer.InputOutput input, ShipComputer.InputOutput output, AtomicLong base) throws InterruptedException {
         switch (operation.type) {
             case add:
                 memory[(int) operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
@@ -19,7 +18,7 @@ class OperationProcessor {
                 memory[(int) operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
                 break;
             case input:
-                memory[(int) operation.parameters[0]] = input.take();
+                memory[(int) operation.parameters[0]] = input.poll();
                 break;
             case output:
                 output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : Operation.OperationMode.relative == operation.parametersModes[0] ? memory[(int) operation.parameters[0]] : operation.parameters[0]);

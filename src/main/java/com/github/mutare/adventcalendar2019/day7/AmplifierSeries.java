@@ -1,13 +1,15 @@
 package com.github.mutare.adventcalendar2019.day7;
 
+import com.github.mutare.adventcalendar2019.day2.ShipComputer;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Queue;
 
 class AmplifierSeries {
 
     private final List<Amplifier> amplifiers = new LinkedList<>();
-    private final LinkedBlockingQueue<Long> output;
+    private final ShipComputer.InputOutput output;
 
     public AmplifierSeries(long[] program, boolean feedbackLoop, int... phases) {
         for (int phase : phases) {
@@ -27,9 +29,9 @@ class AmplifierSeries {
         output = amplifiers.get(amplifiers.size() - 1).getOutput();
     }
 
-    public LinkedBlockingQueue<Long> getOutput() {
-        return output;
-    }
+//    public LinkedBlockingQueue<Long> getOutput() {
+//        return output;
+//    }
 
     public void amplify() throws InterruptedException {
         for (Amplifier amplifier : amplifiers) {
@@ -41,4 +43,7 @@ class AmplifierSeries {
     }
 
 
+    public ShipComputer.InputOutput getOutput() {
+        return output;
+    }
 }

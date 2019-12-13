@@ -1,5 +1,6 @@
 package com.github.mutare.adventcalendar2019.day11;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;

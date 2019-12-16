@@ -1,19 +1,25 @@
 package com.github.mutare.adventcalendar2019.day13;
 
-import com.github.mutare.adventcalendar2019.day2.ShipComputer;
+import com.github.mutare.adventcalendar2019.day2.IntcodeComputer;
 
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ArcadeGame extends Thread {
+
+    LinkedBlockingQueue<Long> input = new LinkedBlockingQueue<>();
+
+    private int count = 0;
 
     private boolean finish;
 
     private int score;
+    private int delay = 10;
 
     public void insertCoins(int i) {
-        program[0] = i;
+        shipComputer.getMemory()[0] = i;
     }
 
     public boolean isFinish() {
@@ -22,8 +28,8 @@ public class ArcadeGame extends Thread {
 
 
     public void printGrid(PrintStream out) {
-        for (int j = 0; j < grid.length; j++) {
-            for (int i = 0; i < grid[0].length; i++) {
+        for (int i = 0; i < grid[0].length; i++) {
+            for (int j = 0; j < grid.length; j++) {
                 out.print(grid[j][i]);
             }
             out.println();
@@ -31,12 +37,16 @@ public class ArcadeGame extends Thread {
         out.println();
     }
 
-    public int getScore() {
+    int getScore() {
         return score;
     }
 
-    public void move(int i) {
-        shipComputer.input(i);
+    void next() {
+        next++;
+    }
+
+    public void setDelay(int value) {
+        this.delay = value;
     }
 
     static class Point {
@@ -59,61 +69,92 @@ public class ArcadeGame extends Thread {
         }
     }
 
-    private long[] program;
     private int[][] grid = new int[42][24];
 
     private Map<Point, Integer> elements = new HashMap<>();
 
-    private ShipComputer shipComputer = new ShipComputer();
+    private IntcodeComputer shipComputer;
 
-    public ArcadeGame(long[] program) {
-        this.program = program;
+    Screen screen;
+    boolean useScreen;
+
+    public ArcadeGame(long[] program, boolean useScreen) {
+        shipComputer = new IntcodeComputer(program);
+        this.screen = useScreen ? new Screen(this) : null;
+        this.useScreen = useScreen;
     }
+
+    int next = 1008;
 
     @Override
     public void run() {
-        try {
-            shipComputer.proccess(program);
-            finish = true;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while (!finish) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            next++;
         }
     }
 
-    public void play() throws InterruptedException {
-        finish = false;
+    public void play(long... in) throws InterruptedException {
         start();
+        if (in != null)
+            for (long l : in)
+                input.add(l);
 
-        while (!finish) {
+        if (useScreen) screen.setVisible(true);
+
+        IntcodeComputer.Result result = null;
+        while ((result = shipComputer.proccess(getInput())).type != IntcodeComputer.Result.Type.END) {
             ArcadeGame.Point point = new ArcadeGame.Point();
-
-            while (shipComputer.getOutput().isEmpty()) if (finish) return;
-            point.x = (int) shipComputer.getOutput().poll();
-
-            while (shipComputer.getOutput().isEmpty()) if (finish) return;
-            point.y = (int) shipComputer.getOutput().poll();
-
-            while (shipComputer.getOutput().isEmpty()) if (finish) return;
-            int c = (int) shipComputer.getOutput().poll();
+            point.x = (result).value.intValue();
+            result = shipComputer.proccess();
+            point.y = (result).value.intValue();
+            result = shipComputer.proccess();
+            int c = (result).value.intValue();
             if (point.x == -1 && point.y == 0) {
-                score = (int) shipComputer.getOutput().poll();
+                score = c;
             } else {
                 elements.put(point, c);
+                boolean wasPaddleOrBall = grid[point.x][point.y] == 3 || grid[point.x][point.y] == 4;
                 grid[point.x][point.y] = c;
+                if (useScreen && !wasPaddleOrBall) screen.draw(grid);
             }
-            //printGrid(System.out);
+
+            if (useScreen)  {
+                while (next == 0) Thread.sleep(1);
+                next--;
+            }
+            count++;
         }
+        finish = true;
+        printGrid(System.out);
+    }
+
+    private Long getInput() {
+        int b = getObjectX(4);
+        int p = getObjectX(3);
+        return Long.valueOf(b > p ? 1 : (b < p ? -1 : 0));
+    }
+
+    private int getObjectX(int c) {
+        for (int j = 0; j < grid.length; j++)
+            for (int i = 0; i < grid[0].length; i++)
+                if (grid[j][i] == c) return j;
+        return -1;
     }
 
     public int getNumberOfBlockTiles() {
-        int i = 0;
-        for (int[] l : grid)
-            for(int c : l) {
-                if (c == 2) i++;
-            }
+//        int i = 0;
+//        for (int[] l : grid)
+//            for (int c : l) {
+//                if (c == 2) i++;
+//            }
 
-        //return (int) elements.values().stream().filter(integer -> integer == 2).count();
-        return i;
+        return (int) elements.values().stream().filter(integer -> integer == 2).count();
+        //return i;
     }
 
 }

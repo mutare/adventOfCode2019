@@ -10,7 +10,7 @@ public class ArcadeGameTest {
 
     @Test
     public void one() throws IOException, InterruptedException {
-        ArcadeGame arcadeGame = new ArcadeGame(new FileProgramInputSource().getProgram());
+        ArcadeGame arcadeGame = new ArcadeGame(new FileProgramInputSource().getProgram(), false);
         arcadeGame.play();
 
         assertEquals(312, arcadeGame.getNumberOfBlockTiles());
@@ -19,10 +19,11 @@ public class ArcadeGameTest {
 
     @Test
     public void two() throws IOException, InterruptedException {
-        Player player = new Player(new ArcadeGame(new FileProgramInputSource().getProgram()));
-        player.insertCoins(2);
-        player.play();
-        assertEquals(-1, player.getScore());
+        ArcadeGame arcadeGame = new ArcadeGame(new FileProgramInputSource().getProgram(), false);
+        arcadeGame.insertCoins(2);
+        arcadeGame.play();
+
+        assertEquals(15909, arcadeGame.getScore());
     }
 
 }

@@ -1,40 +1,32 @@
 package com.github.mutare.adventcalendar2019.day11;
 
-import com.github.mutare.adventcalendar2019.day2.ShipComputer;
+import com.github.mutare.adventcalendar2019.day2.IntcodeComputer;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PaintingRobot extends Thread {
-    private final ShipComputer shipComputer = new ShipComputer();
+public class PaintingRobot {
+    private final IntcodeComputer shipComputer;
 
-    private long[] program;
     private Map<Panel, Character> gridMap = new HashMap<>();
 
     private int x = 0;
     private int y = 0;
     private int direction = 0;//0 - north,  1 - east, 2 - south, 3 - west
-    private boolean finish;
 
     public PaintingRobot(long[] program) {
-        this.program = program;
+        shipComputer = new IntcodeComputer(program);
     }
 
-    public void paint() throws InterruptedException {
-        finish = false;
-        start();
+    public void paint() {
+        IntcodeComputer.Result proccess;
+        while ((proccess = shipComputer.proccess(inputByPosition(x, y))).type != IntcodeComputer.Result.Type.END) {
+            paintOnGrid(proccess.value);
 
-
-        while (true) {
-            shipComputer.input(inputByPosition(x, y));
-
-            while (shipComputer.getOutput().isEmpty()) if (finish) return;
-            paintOnGrid(shipComputer.getOutput().poll());
-
-            while (shipComputer.getOutput().isEmpty()) if (finish) return;
-            turn(shipComputer.getOutput().poll());
+            proccess = shipComputer.proccess();
+            turn(proccess.value);
             move();
         }
     }
@@ -72,20 +64,9 @@ public class PaintingRobot extends Thread {
         return gridMap.containsKey(new Panel(x, y)) ? gridMap.get(new Panel(x, y)) == '.' ? 0 : 1 : 0;
     }
 
-    @Override
-    public void run() {
-        try {
-            shipComputer.proccess(program);
-            finish = true;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     public int getNumberOfPaintedPanels() {
         return gridMap.keySet().size();
     }
-
 
     public char[][] getGrid() {
         Set<Panel> collect = gridMap.entrySet().stream().filter(panelCharacterEntry -> panelCharacterEntry.getValue() == '#').map(Map.Entry::getKey).collect(Collectors.toSet());

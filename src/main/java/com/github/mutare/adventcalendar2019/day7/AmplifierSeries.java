@@ -1,49 +1,41 @@
 package com.github.mutare.adventcalendar2019.day7;
 
-import com.github.mutare.adventcalendar2019.day2.ShipComputer;
+import com.github.mutare.adventcalendar2019.day2.IntcodeComputer;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
+
+import static com.github.mutare.adventcalendar2019.day2.IntcodeComputer.Result.Type.END;
+import static com.github.mutare.adventcalendar2019.day2.IntcodeComputer.Result.Type.OUTPUT;
 
 class AmplifierSeries {
-
-    private final List<Amplifier> amplifiers = new LinkedList<>();
-    private final ShipComputer.InputOutput output;
+    List<IntcodeComputer> computers = new ArrayList<>();
+    int exit;
+    Long value = 0L;
 
     public AmplifierSeries(long[] program, boolean feedbackLoop, int... phases) {
-        for (int phase : phases) {
-            amplifiers.add(new Amplifier(program, phase));
+        for (long i : phases) {
+            IntcodeComputer intcodeComputer = new IntcodeComputer(program);
+            intcodeComputer.proccess(i);
+            computers.add(intcodeComputer);
         }
-
-        amplifiers.get(0).setInput(0);
-
-        for (int i = 0; i < amplifiers.size() - 1; i++) {
-            amplifiers.get(i + 1).setInput(amplifiers.get(i).getOutput());
-        }
-
-        if (feedbackLoop) {
-            amplifiers.get(0).setInput(amplifiers.get(amplifiers.size() - 1).getOutput());
-        }
-
-        output = amplifiers.get(amplifiers.size() - 1).getOutput();
+        exit = feedbackLoop ? 0 : phases.length;
     }
 
-//    public LinkedBlockingQueue<Long> getOutput() {
-//        return output;
-//    }
-
-    public void amplify() throws InterruptedException {
-        for (Amplifier amplifier : amplifiers) {
-            amplifier.amplify();
-        }
-        for (Amplifier amplifier : amplifiers) {
-            amplifier.join();
-        }
+    public void amplify() {
+        do {
+            for (IntcodeComputer intcodeComputer : computers) {
+                IntcodeComputer.Result proccess = intcodeComputer.proccess(value);
+                if (proccess.type == END) {
+                    exit++;
+                } else if (proccess.type == OUTPUT) {
+                    value = proccess.value;
+                }
+            }
+        } while (exit < computers.size());
     }
 
-
-    public ShipComputer.InputOutput getOutput() {
-        return output;
+    public Long getValue() {
+        return value;
     }
 }

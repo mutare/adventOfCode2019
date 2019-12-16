@@ -1,16 +1,18 @@
 package com.github.mutare.adventcalendar2019.day5;
 
+import com.github.mutare.adventcalendar2019.day2.IntcodeComputer;
 import com.github.mutare.adventcalendar2019.day2.Operation;
-import com.github.mutare.adventcalendar2019.day2.ShipComputer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
+import java.util.List;
 
+import static com.github.mutare.adventcalendar2019.day2.IntcodeComputer.Result.Type.END;
+import static com.github.mutare.adventcalendar2019.day2.IntcodeComputer.Result.Type.OUTPUT;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.copyOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -18,11 +20,11 @@ import static org.junit.Assert.assertEquals;
 @RunWith(BlockJUnit4ClassRunner.class)
 public class TESTTest {
 
-    private final ShipComputer shipComputer = new ShipComputer();
-
     @Test
     public void test() throws InterruptedException {
-        assertArrayEquals(new long[]{1002, 4, 3, 4, 99}, copyOf(shipComputer.proccess(1002, 4, 3, 4, 33), 5));
+        IntcodeComputer intcodeComputer = new IntcodeComputer(1002, 4, 3, 4, 33);
+        intcodeComputer.proccess();
+        assertArrayEquals(new long[]{1002, 4, 3, 4, 99}, copyOf(intcodeComputer.getMemory(), 5));
     }
 
     @Test
@@ -44,118 +46,92 @@ public class TESTTest {
 
     @Test
     public void one() throws IOException, InterruptedException {
-        long[] program = new FileProgramInputSource().getProgram();
-        shipComputer.input(1);
-        shipComputer.proccess(program);
+        IntcodeComputer intcodeComputer = new IntcodeComputer(new FileProgramInputSource().getProgram());
+        intcodeComputer.proccess(1L);
+        IntcodeComputer.Result result;
+        List<Long> collect = new LinkedList<>();
+        while (asList(OUTPUT).contains((result = intcodeComputer.proccess()).type)) {
+            collect.add(result.value);
+        }
 
-        ShipComputer.InputOutput collect = shipComputer.getOutput();
-        assertEquals(10, collect.size());
-        int size = collect.size();
-        for (int i = 0; i < size - 1; i++) collect.poll();
-        assertEquals(13285749, collect.poll());
+        assertEquals(13285749, collect.get(collect.size() - 1).longValue());
     }
 
     @Test
     public void two() throws IOException, InterruptedException {
-        long[] program = new FileProgramInputSource().getProgram();
-        shipComputer.input(5);
-        shipComputer.proccess(program);
-
-        ShipComputer.InputOutput collect = shipComputer.getOutput();
-        assertEquals(1, collect.size());
-        assertEquals(5000972, collect.poll());
+        IntcodeComputer intcodeComputer = new IntcodeComputer(new FileProgramInputSource().getProgram());
+        assertEquals(5000972, intcodeComputer.proccess(5L).value.longValue());
     }
 
     @Test
     public void testJumpImmediateMode() throws InterruptedException {
-        shipComputer.input(0);
-        shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(0, collect0.poll());
-        shipComputer.input(1);
-        shipComputer.proccess(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(1, collect1.poll());
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
+        assertEquals(0, shipComputer.proccess(0L).value.longValue());
+
+        shipComputer = new IntcodeComputer(3, 3, 1105, -1, 9, 1101, 0, 0, 12, 4, 12, 99, 1);
+        assertEquals(1, shipComputer.proccess(1L).value.longValue());
     }
 
     @Test
     public void testJumpPoisiotionMode() throws InterruptedException {
-        shipComputer.input(0);
-        shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(0, collect0.poll());
-        shipComputer.input(1);
-        shipComputer.proccess(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(1, collect1.poll());
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
+        assertEquals(0, shipComputer.proccess(0L).value.longValue());
+
+        shipComputer = new IntcodeComputer(3, 12, 6, 12, 15, 1, 13, 14, 13, 4, 13, 99, -1, 0, 1, 9);
+        assertEquals(1, shipComputer.proccess(1L).value.longValue());
     }
 
     @Test
     public void testEqPositionMode() throws InterruptedException {
-        shipComputer.input(8);
-        shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.poll());
-        shipComputer.input(7);
-        shipComputer.proccess(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.poll());
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
+        assertEquals(1, shipComputer.proccess(8L).value.longValue());
+
+        shipComputer = new IntcodeComputer(3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8);
+        assertEquals(0, shipComputer.proccess(7L).value.longValue());
     }
 
     @Test
     public void testLessPositionMode() throws InterruptedException {
-        shipComputer.input(7);
-        shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.poll());
-        shipComputer.input(8);
-        shipComputer.proccess(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.poll());
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
+        assertEquals(1, shipComputer.proccess(7L).value.longValue());
+
+        shipComputer = new IntcodeComputer(3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8);
+        assertEquals(0, shipComputer.proccess(8L).value.longValue());
     }
 
     @Test
     public void testEqImmediateMode() throws InterruptedException {
-        shipComputer.input(8);
-        shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.poll());
-        shipComputer.input(7);
-        shipComputer.proccess(3, 3, 1108, -1, 8, 3, 4, 3, 99);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.poll());
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 3, 1108, -1, 8, 3, 4, 3, 99);
+        assertEquals(1, shipComputer.proccess(8L).value.longValue());
+
+        shipComputer = new IntcodeComputer(3, 3, 1108, -1, 8, 3, 4, 3, 99);
+        assertEquals(0, shipComputer.proccess(7L).value.longValue());
     }
 
     @Test
     public void testLessImmediateMode() throws InterruptedException {
-        shipComputer.input(7);
-        shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(1, collect0.poll());
-        shipComputer.input(8);
-        shipComputer.proccess(3, 3, 1107, -1, 8, 3, 4, 3, 99);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(0, collect1.poll());
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 3, 1107, -1, 8, 3, 4, 3, 99);
+        assertEquals(1, shipComputer.proccess(7L).value.longValue());
+
+        shipComputer = new IntcodeComputer(3, 3, 1107, -1, 8, 3, 4, 3, 99);
+        assertEquals(0, shipComputer.proccess(8L).value.longValue());
     }
 
     @Test
     public void testLarge() throws InterruptedException {
-        long[] program = {3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
+        IntcodeComputer shipComputer = new IntcodeComputer(3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
                 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
-                999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99};
+                999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99);
+        assertEquals(999, shipComputer.proccess(7L).value.longValue());
 
-        shipComputer.input(7);
-        shipComputer.proccess(program);
-        ShipComputer.InputOutput collect0 = shipComputer.getOutput();
-        assertEquals(999, collect0.poll());
-        shipComputer.input(8);
-        shipComputer.proccess(program);
-        ShipComputer.InputOutput collect1 = shipComputer.getOutput();
-        assertEquals(1000, collect1.poll());
+        shipComputer = new IntcodeComputer(3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
+                1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
+                999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99);
+        assertEquals(1000, shipComputer.proccess(8L).value.longValue());
 
-        shipComputer.input(9);
-        shipComputer.proccess(program);
-        ShipComputer.InputOutput collect2 = shipComputer.getOutput();
-        assertEquals(1001, collect2.poll());
+        shipComputer = new IntcodeComputer(3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31,
+                1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104,
+                999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99);
+        assertEquals(1001, shipComputer.proccess(9L).value.longValue());
     }
 }

@@ -2,14 +2,64 @@ package com.github.mutare.adventcalendar2019.day2;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-class OperationProcessor {
-    private final long[] memory;
+import static java.lang.System.arraycopy;
 
-    OperationProcessor(long[] memory) {
-        this.memory = memory;
+public class IntcodeComputer {
+
+    private final AtomicLong base = new AtomicLong(0);
+    private final long[] memory = new long[40960];
+    private int operaionCount = 0;
+    private long index = 0;
+    private Long input;
+    public IntcodeComputer(long... program) {
+        arraycopy(program, 0, memory, 0, program.length);
     }
 
-    long process(Operation operation, long index, ShipComputer.InputOutput input, ShipComputer.InputOutput output, AtomicLong base) throws InterruptedException {
+    public long[] getMemory() {
+        return memory;
+    }
+
+    public static class Result {
+        public enum Type {END, INPUT, OUTPUT, OK}
+
+        public Result(Type type) {
+            this(type, null);
+        }
+
+        Result(Type type, Long value) {
+            this.value = value;
+            this.type = type;
+        }
+
+        public Type type;
+        public Long value;
+
+    }
+
+    public Result proccess() {
+        return proccess(null);
+    }
+
+    public Result proccess(Long input) {
+        this.input = input;
+        Operation operation;
+        while ((operation = parseOperation()).type != Operation.OperationType.end) {
+            Result result = process(operation, base);
+            if (result.type != Result.Type.OK) {
+                return result;
+            }
+            operaionCount++;
+        }
+        return new Result(Result.Type.END);
+    }
+
+    Operation parseOperation() {
+        Operation operation = Operation.of(memory[(int) index]);
+        getParameters(operation, index, base);
+        return operation;
+    }
+
+    Result process(Operation operation, AtomicLong base) {
         switch (operation.type) {
             case add:
                 memory[(int) operation.parameters[2]] = operation.parameters[0] + operation.parameters[1];
@@ -18,19 +68,26 @@ class OperationProcessor {
                 memory[(int) operation.parameters[2]] = operation.parameters[0] * operation.parameters[1];
                 break;
             case input:
-                memory[(int) operation.parameters[0]] = input.poll();
+                if (input != null) {
+                    memory[(int) operation.parameters[0]] = input;
+                    input = null;
+                } else {
+                    return new Result(Result.Type.INPUT);
+                }
                 break;
             case output:
-                output.add(operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : Operation.OperationMode.relative == operation.parametersModes[0] ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
-                break;
+                skipToNext(operation);
+                return new Result(Result.Type.OUTPUT, operation.parametersModes[0] == Operation.OperationMode.position ? memory[(int) operation.parameters[0]] : Operation.OperationMode.relative == operation.parametersModes[0] ? memory[(int) operation.parameters[0]] : operation.parameters[0]);
             case jump_if_true:
                 if (operation.parameters[0] != 0) {
-                    return operation.parameters[1];
+                    index = operation.parameters[1];
+                    return new Result(Result.Type.OK);
                 }
                 break;
             case jump_if_false:
                 if (operation.parameters[0] == 0) {
-                    return operation.parameters[1];
+                    index = operation.parameters[1];
+                    return new Result(Result.Type.OK);
                 }
                 break;
             case less:
@@ -43,19 +100,15 @@ class OperationProcessor {
                 base.addAndGet(operation.parameters[0]);
                 break;
         }
-        return skipToNext(operation, index);
+        skipToNext(operation);
+        return new Result(Result.Type.OK);
     }
 
 
-    private long skipToNext(Operation operation, long i) {
-        return i + operation.type.noOfParameters + 1;
+    private void skipToNext(Operation operation) {
+        index += operation.type.noOfParameters + 1;
     }
 
-    Operation parseOperation(long i, AtomicLong base) {
-        Operation operation = Operation.of(memory[(int) i]);
-        getParameters(operation, i, base);
-        return operation;
-    }
 
     private void getParameters(Operation operation, long index, AtomicLong base) {
 

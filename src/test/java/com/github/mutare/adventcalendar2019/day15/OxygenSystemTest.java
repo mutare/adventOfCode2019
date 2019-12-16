@@ -1,0 +1,16 @@
+package com.github.mutare.adventcalendar2019.day15;
+
+import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+
+public class OxygenSystemTest {
+
+    @Test
+    public void test() throws IOException, InterruptedException {
+        DroidRemoteControl droidRemoteControl = new DroidRemoteControl(new FileProgramInputSource().getProgram("/day15/data"), false);
+        assertEquals(254, droidRemoteControl.go());
+    }
+}

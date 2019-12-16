@@ -2,18 +2,20 @@ package com.github.mutare.adventcalendar2019.day13;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class Screen extends JFrame {
     private int[][] grid = new int[0][0];
-    ArcadeGame arcadeGame;
-    JLabel bricks;
-    JLabel score;
-    JPanel jPanel0;
-    JPanel jPanel1;
-    JPanel jPanel2;
+    private Game game;
+    private JLabel bricks;
+    private JLabel score;
+    private JPanel jPanel0;
+    private JPanel jPanel1;
+    private JPanel jPanel2;
 
-    public Screen(ArcadeGame arcadeGame) {
-        this.arcadeGame = arcadeGame;
+    public Screen(Game game) {
+        this.game = game;
         this.setSize(800, 600);
         this.setLayout(new BorderLayout());
 
@@ -59,18 +61,36 @@ public class Screen extends JFrame {
         this.add(jPanel0);
 
         JButton next = new JButton("NEXT");
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 30, 10);
-        slider.addChangeListener(e -> arcadeGame.setDelay(((JSlider) e.getSource()).getValue()));
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 100, 50);
+        slider.addChangeListener(e -> game.setDelay(((JSlider) e.getSource()).getValue()));
 
         bricks = new JLabel("BRICKS");
         bricks.setSize(new Dimension(300, 50));
         score = new JLabel("SCORE");
         score.setSize(new Dimension(300, 50));
-        next.addActionListener(e -> arcadeGame.next());
+        next.addActionListener(e -> game.next());
         jPanel1.add(next);
         jPanel1.add(score);
         jPanel1.add(bricks);
         jPanel1.add(slider);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                game.next(e.getKeyCode());
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                game.next(e.getKeyCode());
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                //game.next(e.getKeyCode());
+            }
+        });
     }
 
     int SIZE = 10;
@@ -78,12 +98,12 @@ public class Screen extends JFrame {
 
     public void draw(int[][] grid) {
         this.grid = grid;
-        if (arcadeGame != null) {
-            bricks.setText("" + this.arcadeGame.getNumberOfBlockTiles());
-            score.setText("" + this.arcadeGame.getScore());
+        if (game != null) {
+            bricks.setText("" + this.game.getParameter(0));
+            score.setText("" + this.game.getParameter(1));
         }
         this.invalidate();
-        jPanel2.setSize(SIZE * grid[0].length, SIZE * grid.length);
-        jPanel2.repaint();
+        this.jPanel2.setSize(SIZE * grid[0].length, SIZE * grid.length);
+        this.jPanel2.repaint();
     }
 }

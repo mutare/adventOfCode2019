@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class ArcadeGame extends Thread {
+public class ArcadeGame extends Thread implements Game {
 
     LinkedBlockingQueue<Long> input = new LinkedBlockingQueue<>();
 
@@ -37,14 +37,23 @@ public class ArcadeGame extends Thread {
         out.println();
     }
 
-    int getScore() {
-        return score;
-    }
-
-    void next() {
+    @Override
+    public void next() {
         next++;
     }
 
+    @Override
+    public void next(int input) {
+
+    }
+
+    @Override
+    public int getParameter(int no) {
+        return no == 0 ? (int) elements.values().stream().filter(integer -> integer == 2).count() :
+                no == 1 ? score : -1;
+    }
+
+    @Override
     public void setDelay(int value) {
         this.delay = value;
     }
@@ -123,7 +132,7 @@ public class ArcadeGame extends Thread {
                 if (useScreen && !wasPaddleOrBall) screen.draw(grid);
             }
 
-            if (useScreen)  {
+            if (useScreen) {
                 while (next == 0) Thread.sleep(1);
                 next--;
             }
@@ -144,17 +153,6 @@ public class ArcadeGame extends Thread {
             for (int i = 0; i < grid[0].length; i++)
                 if (grid[j][i] == c) return j;
         return -1;
-    }
-
-    public int getNumberOfBlockTiles() {
-//        int i = 0;
-//        for (int[] l : grid)
-//            for (int c : l) {
-//                if (c == 2) i++;
-//            }
-
-        return (int) elements.values().stream().filter(integer -> integer == 2).count();
-        //return i;
     }
 
 }

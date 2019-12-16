@@ -1,4 +1,4 @@
-package com.github.mutare.adventcalendar2019.day13;
+package com.github.mutare.adventcalendar2019.day15;
 
 import java.io.BufferedReader;
 import java.io.IOException;

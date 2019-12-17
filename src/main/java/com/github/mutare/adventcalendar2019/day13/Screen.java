@@ -46,7 +46,9 @@ public class Screen extends JFrame {
                             case 4://ball
                                 g.setColor(Color.MAGENTA);
                                 break;
-                        }
+                            case 5:
+                                g.setColor(Color.GREEN);
+                                break;                        }
                         g.fillRect(i * SIZE, j * SIZE, SIZE, SIZE);
                     }
                 }

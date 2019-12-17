@@ -9,8 +9,13 @@ import static org.junit.Assert.assertEquals;
 public class OxygenSystemTest {
 
     @Test
-    public void test() throws IOException, InterruptedException {
-        DroidRemoteControl droidRemoteControl = new DroidRemoteControl(new FileProgramInputSource().getProgram("/day15/data"), false);
+    public void oneTwo() throws IOException, InterruptedException {
+        DroidRemoteControl droidRemoteControl = new DroidRemoteControl(new FileProgramInputSource().getProgram("/day15/data"), true);
         assertEquals(254, droidRemoteControl.go());
+        assertEquals(41, droidRemoteControl.oxygenSystemX);
+        assertEquals(43, droidRemoteControl.oxygenSystemY);
+
+        droidRemoteControl.turnOnSystem();
+        assertEquals(268, droidRemoteControl.minutes);
     }
 }

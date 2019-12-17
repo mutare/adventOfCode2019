@@ -4,6 +4,11 @@ import com.github.mutare.adventcalendar2019.day13.Game;
 import com.github.mutare.adventcalendar2019.day13.Screen;
 import com.github.mutare.adventcalendar2019.day2.IntcodeComputer;
 
+import java.awt.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 public class DroidRemoteControl implements Game {
     private static final int SIZE = 50;
     private IntcodeComputer intcodeComputer;
@@ -15,6 +20,12 @@ public class DroidRemoteControl implements Game {
     private Screen screen;
     private int delay = 50;
     private int distanceCounter = 0;
+    int oxygenSystemX;
+    int oxygenSystemY;
+    private int oxygenSystemDistance;
+    private int startX = x;
+    private int startY = y;
+
 
     public DroidRemoteControl(long[] program, boolean useScreen) {
         this.intcodeComputer = new IntcodeComputer(program);
@@ -58,16 +69,25 @@ public class DroidRemoteControl implements Game {
                     map[xx][yy] = '#';
                     dir = turn((int) dir, false);
                 } else if (proccess.value == 1) {
-                    map[x][y] = '.';
+                    if (x == oxygenSystemX && y == oxygenSystemY) {
+                        map[x][y] = '$';
+                    } else {
+                        map[x][y] = '.';
+                    }
                     calculateDistance(x, y);
                     map[x = xx][y = yy] = 'D';
                     dir = turn((int) dir, true);
                 } else if (proccess.value == 2) {
-                    map[x][y] = '$';
+                    map[x = xx][y = yy] = '$';
                     if (!useScreen) printMap(map);
-                    return distanceCounter + 1;
+                    oxygenSystemX = x;
+                    oxygenSystemY = y;
+                    oxygenSystemDistance = distanceCounter + 1;
                 }
                 if (useScreen) screen.draw(convertMap(map));
+            }
+            if (x == startX && y == startY && oxygenSystemDistance != 0) {
+                return oxygenSystemDistance;
             }
         }
     }
@@ -99,6 +119,10 @@ public class DroidRemoteControl implements Game {
                     intMap[j][i] = 2;
                 } else if (map[i][j] == 'D') {
                     intMap[j][i] = 4;
+                } else if (map[i][j] == 'O') {
+                    intMap[j][i] = 3;
+                } else if (map[i][j] == '$') {
+                    intMap[j][i] = 5;
                 }
             }
         }
@@ -147,7 +171,43 @@ public class DroidRemoteControl implements Game {
 
     @Override
     public int getParameter(int no) {
-        return 0;
+        return no == 0 ? minutes : 0;
     }
 
+    int minutes;
+
+    public void turnOnSystem() throws InterruptedException {
+
+        while (noEmptyHall()) {
+            if (useScreen) {
+                Thread.sleep(delay * 20);
+            }
+            Set<Point> listPointToFill = new HashSet<>();
+            for (int j = 0; j < map.length; j++)
+                for (int i = 0; i < map[0].length; i++)
+                    if (map[i][j] == 'O' || map[i][j] == '$') {
+                        listPointToFill.add(getPoinIfEmptyHall(i + 1, j));
+                        listPointToFill.add(getPoinIfEmptyHall(i - 1, j));
+                        listPointToFill.add(getPoinIfEmptyHall(i, j + 1));
+                        listPointToFill.add(getPoinIfEmptyHall(i, j - 1));
+                    }
+
+            listPointToFill.stream().filter(Objects::nonNull).forEach(point -> map[point.x][point.y] = 'O');
+            if (useScreen) screen.draw(convertMap(map));
+            minutes++;
+        }
+        printMap(map);
+    }
+
+    private Point getPoinIfEmptyHall(int x, int y) {
+        return map[x][y] == '.' ? new Point(x, y) : null;
+    }
+
+    private boolean noEmptyHall() {
+        for (int j = 0; j < map.length; j++)
+            for (int i = 0; i < map[0].length; i++)
+                if (map[i][j] == '.') return true;
+
+        return false;
+    }
 }

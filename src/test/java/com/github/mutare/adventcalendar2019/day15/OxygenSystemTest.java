@@ -10,7 +10,7 @@ public class OxygenSystemTest {
 
     @Test
     public void oneTwo() throws IOException, InterruptedException {
-        DroidRemoteControl droidRemoteControl = new DroidRemoteControl(new FileProgramInputSource().getProgram("/day15/data"), true);
+        DroidRemoteControl droidRemoteControl = new DroidRemoteControl(new FileProgramInputSource().getProgram("/day15/data"), false);
         assertEquals(254, droidRemoteControl.go());
         assertEquals(41, droidRemoteControl.oxygenSystemX);
         assertEquals(43, droidRemoteControl.oxygenSystemY);

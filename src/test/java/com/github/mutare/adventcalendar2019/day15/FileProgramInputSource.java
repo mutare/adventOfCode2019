@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-class FileProgramInputSource {
+public class FileProgramInputSource {
     public long[] getProgram(String path) throws IOException {
         Collection<Long> program = new LinkedList<>();
         try (InputStream is = FileProgramInputSource.class.getResourceAsStream(path)) {

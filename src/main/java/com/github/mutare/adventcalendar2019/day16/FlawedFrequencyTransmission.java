@@ -1,53 +1,64 @@
 package com.github.mutare.adventcalendar2019.day16;
 
-import java.util.stream.Stream;
-
-import static com.google.common.collect.Streams.zip;
-import static java.lang.System.arraycopy;
-import static java.util.Arrays.copyOf;
+import static java.util.Arrays.copyOfRange;
 import static java.util.Arrays.stream;
 
 public class FlawedFrequencyTransmission {
 
+    private int index;
     private int[] inputInt;
-    private int inputLength;
     private int[] basePhase = {0, 1, 0, -1};
+    private int repeat;
+    private int[] output;
 
     public FlawedFrequencyTransmission(String input, int repeat) {
-        this.inputLength = repeat * input.length();
         this.inputInt = new int[input.length() * repeat];
-        int[] inputSingle = stream(input.split("")).mapToInt(Integer::parseInt).toArray();
-        for (int i = 0 ; i < repeat ; i++) {
-            arraycopy(inputSingle, 0,  inputInt, i * inputSingle.length, inputSingle.length);
-        }
-    }
-
-    private Stream<Integer> phaseStream() {
-        return Stream.iterate(0, i -> (i + 1) % 4).map(integer -> basePhase[integer]);
-    }
-
-    private Stream<Integer> inputStream() {
-        return stream(inputInt).boxed();
-    }
-
-    private Integer getValueForPhase(Integer phaseNo) {
-        return zip(getPhaseStreamFor(phaseNo), inputStream(), (phase, input) -> phase * input).reduce(0, Integer::sum);
-    }
-
-    private Stream<Integer> getPhaseStreamFor(int phase) {
-        return phaseStream().flatMap(integer -> Stream.generate(() -> integer).limit(phase)).limit(inputLength + 1).skip(1);
+        int[] singleArray = stream(input.split("")).mapToInt(Integer::parseInt).toArray();
+        for (int i = 0; i < repeat; i++)
+            System.arraycopy(singleArray, 0, inputInt, i * input.length(), singleArray.length);
+        this.repeat = repeat;
+        this.index = repeat > 1 ? Integer.parseInt(input.substring(0, 7)) : 0;
     }
 
     public void decode(int noPfPhases) {
-        System.out.println("Start");
-
-        for (int j = 0; j < noPfPhases; j++) {
-            inputInt = Stream.iterate(1, i -> i + 1).map(this::getValueForPhase).map(integer -> integer % 10).map(Math::abs).limit(inputLength).mapToInt(value -> value).toArray();
-            System.out.println("Phase : " + j);
+        for (int p = 0; p < noPfPhases; p++) {
+            if (repeat > 1) decodeByModBackwards();
+            else decodeBySumming();
         }
     }
 
+    private void decodeByModBackwards() {
+        int[] temp = new int[inputInt.length];
+        int mod = 0;
+        for (int i = inputInt.length - 1; i > inputInt.length / 2; i--) {
+            mod = temp[i] = (inputInt[i] + mod) % 10;
+        }
+        inputInt = temp;
+    }
+
+    private void decodeBySumming() {
+        int[] temp = new int[inputInt.length];
+        for (int i = 0; i < inputInt.length; i++) {
+            int sum = 0;
+
+            for (int j = i; j < inputInt.length; j = j + 4 * (i + 1)) {
+                for (int k = j; k < j + i + 1 && k < inputInt.length; k++) {
+                    sum += inputInt[k];
+                }
+                for (int k = j; k < j + i + 1 && k + 2 * (i + 1) < inputInt.length; k++) {
+                    sum -= inputInt[k + 2 * (i + 1)];
+                }
+            }
+            temp[i] = sum > 0 ? sum % 10 : -sum % 10;
+        }
+        inputInt = temp;
+    }
+
     public String getOutput() {
-        return stream(inputInt).boxed().map(Object::toString).reduce(String::concat).orElseThrow();
+        if (repeat > 1) {
+            return stream(copyOfRange(inputInt, index, index + 8)).boxed().map(Object::toString).reduce(String::concat).orElseThrow();
+        } else {
+            return stream(inputInt).boxed().map(Object::toString).reduce(String::concat).orElseThrow();
+        }
     }
 }

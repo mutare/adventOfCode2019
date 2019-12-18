@@ -19,9 +19,17 @@ public class SetAndForgetTest {
     @Test
     public void one() throws IOException {
         ASCII ascii = new ASCII(new FileProgramInputSource().getProgram("/day17/data"));
+        ascii.run(false);
         ascii.markIntersections();
         ascii.printView(System.out);
         assertEquals(14332, ascii.getIntersectionsAlignmentSum());
+    }
+
+    @Test
+    public void two() throws IOException {
+        ASCII ascii = new ASCII(new FileProgramInputSource().getProgram("/day17/data"));
+        ascii.run(true);
+        assertEquals(1034009, ascii.getOutputLongValue());
     }
 
 }

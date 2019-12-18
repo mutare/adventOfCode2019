@@ -34,6 +34,13 @@ public class IntcodeComputer {
         public Type type;
         public Long value;
 
+        @Override
+        public String toString() {
+            return "Result{" +
+                    "type=" + type +
+                    ", value=" + value +
+                    '}';
+        }
     }
 
     public Result proccess() {
@@ -151,5 +158,8 @@ public class IntcodeComputer {
             default:
                 throw new RuntimeException();
         }
+    }
+    public void reset() {
+        index = 0;
     }
 }

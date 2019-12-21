@@ -9,7 +9,7 @@ import java.util.List;
 
 import static java.lang.System.arraycopy;
 
-class FileViewInputSource {
+public class FileViewInputSource {
     public char[][] getView(String path) throws IOException {
         List<String> lines = new LinkedList<>();
         try (InputStream is = FileViewInputSource.class.getResourceAsStream(path)) {

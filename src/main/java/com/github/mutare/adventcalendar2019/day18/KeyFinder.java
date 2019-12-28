@@ -4,16 +4,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.github.mutare.adventcalendar2019.day18.Speleologist.Direction.*;
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 
 public class KeyFinder {
     private Map<Key, List<Key>> vertices = new HashMap<>();
-    private Map<Character, Integer> distances = new HashMap<>();
-    private Map<Character, Character> previous = new HashMap<>();
-    private final Set<Character> keysNames;
+    private int[][] distances;
+    private int[][] previous;
+    private final List<Character> keysNames;
     private final Map<Way, Integer> ways;
-    List<Key> seen = new ArrayList<>();
+    //List<Key> seen = new ArrayList<>();
 
     public void create(char c) {
         Key start = vertices.keySet().stream().filter(key -> key.name == c).findFirst().orElseThrow();
@@ -43,40 +42,41 @@ public class KeyFinder {
 
 
     public int getShortestPathSteps() {
-        keysNames.stream().forEach(character -> distances.put(character, Integer.MAX_VALUE));
-        keysNames.stream().forEach(character -> previous.put(character, null));
 
+        Set<Key> seen = new HashSet<>();
+        LinkedList<Key> q = new LinkedList<>();
+        LinkedList<Integer> distance = new LinkedList<>();
+        LinkedList<String> route = new LinkedList<>();
 
-        gotoNextKey('@', 0);
-        previous.values();
-        //a b  c  d  e  f
-        //@ a  b  b  c  e
-        //2 8 18 42 32 38
-        //f e c b a @
-        //38 + 32+ 18 +8 + 2
-        return distances.values().stream().reduce(Integer::sum).orElseThrow();
-    }
+        Set<Integer> results = new HashSet<>();
 
-    private void gotoNextKey(char c, int distance) {
-        Key currentKey = vertices.keySet().stream().filter(key -> key.name == c).findFirst().orElseThrow();
-
-        Key nearest = null;
-        int nearestDistance = 0;
-        for (Key k : vertices.get(currentKey).stream().sorted(Comparator.comparingInt(o -> ways.get(Way.of(findInView(currentKey.name, view), findInView(o.name, view))))).collect(Collectors.toList())) {
-            Integer integer = ways.get(Way.of(findInView(currentKey.name, view), findInView(k.name, view)));
-            if (nearest == null) {
-                nearest = k;
-                nearestDistance = integer;
-            }
-            if (distances.get(k.name) > integer + distance) {
-                distances.put(k.name, integer + distance);
-                previous.put(k.name, currentKey.name);
-            }
+        Key start = vertices.keySet().stream().filter(key -> key.name == '@').findFirst().get();
+        for (Key k : vertices.get(start).stream().filter(key -> !route.contains(key.name)).collect(Collectors.toSet())) {
+            q.add(k);
+            distance.add(ways.get(Way.of(findInView('@', view), k.location)));
+            route.add("@");
         }
-        seen.add(currentKey);
-        if (nearest != null) {
-            gotoNextKey(nearest.name, distance + nearestDistance);
+        seen.add(start);
+
+        while (!q.isEmpty()) {
+            Key current = q.poll();
+            int currentDistance = distance.poll();
+            String currentRoute = route.poll();
+            currentRoute += current.name;
+System.out.println("Current route : " + currentRoute);
+            if (new ArrayList<>(currentRoute.chars().mapToObj(value -> (char) value).collect(Collectors.toList())).containsAll(keysNames)) {
+                results.add(currentDistance);
+            }
+            for (Key k : vertices.get(current).stream().filter(key -> !route.contains(key.name)).collect(Collectors.toSet())) {
+                q.add(k);
+                distance.add(currentDistance + ways.get(Way.of(current.location, k.location)));
+                route.add(currentRoute);
+            }
+            seen.add(current);
+
+
         }
+        return results.stream().min(Integer::compareTo).orElseThrow();
     }
 
 
@@ -121,14 +121,24 @@ public class KeyFinder {
         this.view = view;
         ways = createKeyToKeyWays(copy(view));
         keys = scan(copy(view));
-        keysNames = keys.stream().map(key -> key.name).collect(Collectors.toSet());
-        vertices.put(Key.of('@', new HashSet<>(asList('A', 'B')), findInView('@', view)), keys.stream().filter(key -> key.doors.isEmpty()).collect(Collectors.toList()));
+        keysNames = keys.stream().map(key -> key.name).collect(Collectors.toList());
+        vertices.put(Key.of('@', new HashSet<>(getDoors(view)), findInView('@', view)), keys.stream().filter(key -> key.doors.isEmpty()).collect(Collectors.toList()));
         for (Key key : keys) {
             vertices.put(key, new ArrayList<>());
         }
 
         create('@');
 
+    }
+
+    private Set<Character> getDoors(char[][] map) {
+        Set<Character> doors = new HashSet<>();
+        for (int i = 0; i < view[0].length; i++)
+            for (int j = 0; j < view.length; j++) {
+                if (map[j][i] >= 65 && map[j][i] <= 90)
+                    doors.add(map[j][i]);
+            }
+        return doors;
     }
 
     int stepsCount = -1;
@@ -281,17 +291,18 @@ public class KeyFinder {
         while (!track.equals(initialPosition)) {
             char ahead = whatIsAhead(track, map);
 
-            if (ahead >= 97 && ahead <= 122) {
-                foundObjects.add(Key.of(ahead, doorStack, track.location.clone()));
-            }
-
-            if (ahead >= 65 && ahead <= 90) {
-                if (doorStack.contains(ahead)) doorStack.remove(ahead);
-                else doorStack.add(ahead);
-            }
 
             if (canMove(ahead, true)) {
                 track.moveAhead();
+
+                if (ahead >= 97 && ahead <= 122) {
+                    foundObjects.add(Key.of(ahead, doorStack, track.location.clone()));
+                }
+
+                if (ahead >= 65 && ahead <= 90) {
+                    if (doorStack.contains(ahead)) doorStack.remove(ahead);
+                    else doorStack.add(ahead);
+                }
 
                 if (distances[track.location.y][track.location.x] == 0) {
                     distanceCounter++;

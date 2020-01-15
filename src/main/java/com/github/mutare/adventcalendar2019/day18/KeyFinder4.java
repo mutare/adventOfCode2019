@@ -319,11 +319,11 @@ public class KeyFinder4 {
             Integer distance = midDistances.get(subPath);
             if (distance == null) {
                 distance = getMidMin(subPath, newstate);
-                if (null == midDistances.put(subPath, distance) && midDistances.size() % 100 == 0)
+                if (null == midDistances.put(subPath, distance) && midDistances.size() % 10000 == 0)
                     System.out.println("Midmin size : " + midDistances.size());
             } else {
                 reuse++;
-                if (reuse%1000 == 0)System.out.println("Reuse count : " + reuse);
+                if (reuse%100000 == 0)System.out.println("Reuse count : " + reuse);
             }
             mids.put(subPath, distance);
         });
@@ -365,43 +365,6 @@ public class KeyFinder4 {
         }
 
         return min;
-
-        //go(q.pop(), 0, new LinkedList<>());
-//
-        /*
-        int count = 0;
-        while (!q.isEmpty()) {
-            State state = q.pop();
-
-            //if (seen.contains(state)) continue;
-            //seen.add(state);
-            count++;
-            if (count % 10000 == 0) System.out.println(seen.size() + " : " + q.size());
-//
-////
-//            //System.out.println(state);
-//
-            if (state.keys.isEmpty()) {
-                routes.add(state.route);
-                continue;
-            }
-            state.keys.entrySet().stream().filter(characterCollectionEntry -> characterCollectionEntry.getValue().isEmpty()).map(Map.Entry::getKey).forEach(c -> {
-                State newState = new State(state);
-                newState.route.add(c);
-                newState.keys.remove(c);
-                newState.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
-                q.add(newState);
-            });
-        }
-*/
-//        int min = Integer.MAX_VALUE;
-////        for (List<Character> route : routes) {
-////            int distance = getDistanceForRoute(route);
-////            if (distance < min) min = distance;
-////        }
-////        return min;
-        //return min;
-        //return min;
     }
 
 

@@ -1,379 +1,460 @@
 package com.github.mutare.adventcalendar2019.day18;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.github.mutare.adventcalendar2019.day18.Speleologist.Direction.*;
-import static java.util.Arrays.stream;
+import static com.google.common.primitives.Chars.asList;
 
 public class KeyFinder {
-    private Map<Key, List<Key>> vertices = new HashMap<>();
-    private int[][] distances;
-    private int[][] previous;
-    private final List<Character> keysNames;
-    private final Map<Way, Integer> ways;
-    //List<Key> seen = new ArrayList<>();
 
-    public void create(char c) {
-        Key start = vertices.keySet().stream().filter(key -> key.name == c).findFirst().orElseThrow();
-        for (int k = 0; k < vertices.get(start).size(); k++) {
-            Key key = vertices.get(start).get(k);
-            Set<Character> route = new HashSet<>();
-            route.add(start.name);
-            goTo(key, new HashSet<>(), route);
-        }
-        System.out.println("Done");
-    }
+    class State {
+        public char[] robotsLocations;
+        Map<Character, Collection<Character>> keys;
+        List<Robot> robots;
+        List<Character> route;
 
-    private void goTo(Key key, Set<Character> opened, Set<Character> route) {
-        opened.add(Character.toUpperCase(key.name));
-        route.add(key.name);
-        List<Key> collect = vertices.keySet().stream()
-                .filter(key1 -> key1.name != key.name)
-                .filter(key1 -> key1.isAccessible(opened))
-                .filter(key1 -> !route.contains(key1.name))
-                .collect(Collectors.toList());
-        for (Key k : collect) {
-            vertices.get(key).add(k);
-            Set<Character> characters = new HashSet<>(opened);
-            goTo(k, characters, route);
-        }
-    }
-
-
-    public int getShortestPathSteps() {
-
-        Set<Key> seen = new HashSet<>();
-        LinkedList<Key> q = new LinkedList<>();
-        LinkedList<Integer> distance = new LinkedList<>();
-        LinkedList<String> route = new LinkedList<>();
-
-        Set<Integer> results = new HashSet<>();
-
-        Key start = vertices.keySet().stream().filter(key -> key.name == '@').findFirst().get();
-        for (Key k : vertices.get(start).stream().filter(key -> !route.contains(key.name)).collect(Collectors.toSet())) {
-            q.add(k);
-            distance.add(ways.get(Way.of(findInView('@', view), k.location)));
-            route.add("@");
-        }
-        seen.add(start);
-
-        while (!q.isEmpty()) {
-            Key current = q.poll();
-            int currentDistance = distance.poll();
-            String currentRoute = route.poll();
-            currentRoute += current.name;
-System.out.println("Current route : " + currentRoute);
-            if (new ArrayList<>(currentRoute.chars().mapToObj(value -> (char) value).collect(Collectors.toList())).containsAll(keysNames)) {
-                results.add(currentDistance);
-            }
-            for (Key k : vertices.get(current).stream().filter(key -> !route.contains(key.name)).collect(Collectors.toSet())) {
-                q.add(k);
-                distance.add(currentDistance + ways.get(Way.of(current.location, k.location)));
-                route.add(currentRoute);
-            }
-            seen.add(current);
-
-
-        }
-        return results.stream().min(Integer::compareTo).orElseThrow();
-    }
-
-
-    static class Key {
-        private final Location location;
-        char name;
-        Set<Character> doors;
-
-        public Key(char name, Set<Character> doors, Location location) {
-            this.name = name;
-            this.doors = doors;
-            this.location = location;
-        }
-
-        public static Key of(char name, Set<Character> doorStack, Location location) {
-            return new Key(name, new HashSet<Character>(doorStack), location);
-        }
-
-        public boolean isAccessible(Set<Character> openedDoors) {
-            return !(doors.stream().filter(character -> !openedDoors.contains(character)).count() > 0);
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            State state = (State) o;
+            return Objects.equals(keys, state.keys) &&
+                    Objects.equals(route, state.route) &&
+                    Objects.equals(robotsLocations, state.robotsLocations);
         }
 
         @Override
         public int hashCode() {
-            int hash = 17;
-            hash *= 31 * name;
-            return hash;
+            return Arrays.hashCode(robotsLocations);
+        }
+
+        public State() {
+            this.keys = new HashMap<>();
+            this.robots = new ArrayList<>();
+            this.route = new ArrayList<>();
+        }
+
+        public State(State state) {
+            this.keys = new HashMap<>();
+            this.robots = new ArrayList<>();
+            this.route = new ArrayList<>(state.route);
+
+            for (Robot robot : state.robots) {
+                this.robots.add(new Robot(robot));
+            }
+            for (Character character : state.keys.keySet()) {
+                this.keys.put(character, new ArrayList<>(state.keys.get(character)));
+            }
+            this.robotsLocations = Arrays.copyOf(state.robotsLocations, state.robotsLocations.length);
+        }
+
+        public void init() {
+            for (int i = 0; i < initialRobots.size(); i++) {
+                keys.putAll(getRobotObstacles(initialRobots.get(i)));
+            }
+            robotsLocations = new char[initialRobots.size()];
+        }
+
+
+        private Map<Character, Collection<Character>> getRobotObstacles(Robot robot) {
+            Map<Character, Collection<Character>> foundKeys = new HashMap<>();
+            Deque<Scanner> q = new LinkedList<>();
+            Set<Scanner> seen = new HashSet<>();
+            q.add(new Scanner(robot.location));
+            while (!q.isEmpty()) {
+                Scanner scanner = q.pop();
+                if (seen.contains(scanner)) continue;
+                seen.add(scanner);
+                if (isWall(scanner.location)) continue;
+                if (isDoor(scanner.location))
+                    scanner.doors.add(getCharAt(scanner.location));
+                if (isKey(scanner.location)) {
+                    foundKeys.put(getCharAt(scanner.location), new LinkedList<>(scanner.doors));//putIfAbsent????
+                    scanner.doors.add(getCharAt(scanner.location));
+                }
+                for (int i = 0; i < dr.length; i++) {
+                    Scanner newScanner = new Scanner(scanner);
+                    newScanner.location.x += dc[i];
+                    newScanner.location.y += dr[i];
+                    q.add(newScanner);
+                }
+            }
+            return foundKeys;
+        }
+    }
+
+    private final char[][] map;
+    List<Map<Character, Location>> availablePositions = new ArrayList<>();
+    List<Map<Path, Integer>> distances = new ArrayList<>();
+    Map<Character, Location> allKeysLocations = new HashMap<>();
+    State initialState;
+    List<Robot> initialRobots = new LinkedList<>();
+    List<List<Character>> routes = new LinkedList<>();
+    Map<Set<Character>, Integer> pathsMinDistances = new HashMap<>();
+    private int min = Integer.MAX_VALUE;
+    private int routesCount;
+
+
+    byte[] dr = new byte[]{-1, 0, 1, 0};
+    byte[] dc = new byte[]{0, 1, 0, -1};
+    Deque<State> q = new LinkedList<>();
+
+    Set<State> seen = new HashSet<>();
+    static Set<Character> allKeys = new HashSet<>();
+
+    public KeyFinder(char[][] map) {
+        this.map = map;
+        int height = map.length;
+        int width = map[0].length;
+        State state = new State();
+        for (byte r = 0; r < height; r++)
+            for (byte c = 0; c < width; c++) {
+                if (map[r][c] == '@') {
+                    state.robots.add(new Robot(c, r));
+                    initialRobots.add(new Robot(c, r));
+                }
+                if ('a' <= map[r][c] && map[r][c] <= 'z') {
+                    allKeys.add(map[r][c]);
+                    allKeysLocations.put(map[r][c], Location.of(c, r));
+                }
+            }
+        state.init();
+        //state.robots = new ArrayList<>(initialRobots);
+        initialState = new State(state);
+
+        q.add(state);
+
+        for (Robot robot : initialRobots) {
+            Map<Character, Location> available = getAvailablePositions(robot.location);
+            availablePositions.add(available);
+            distances.add(getPaths(available));
+        }
+    }
+
+    private Map<Path, Integer> getPaths(Map<Character, Location> available) {
+        Map<Path, Integer> distances = new HashMap<>();
+        for (Character c0 : available.keySet()) {
+            for (Character c1 : available.keySet()) {
+                if (c0.equals(c1)) continue;
+                Path path = Path.of(available.get(c0), available.get(c1));
+                distances.put(path, getDistance(available.get(c0), available.get(c1)));
+            }
+        }
+        return distances;
+    }
+
+    private int getDistance(Location location, Location location1) {
+        Deque<Robot> q = new LinkedList<>();
+        Set<Location> seen = new HashSet<>();
+        q.add(new Robot(location));
+        while (!q.isEmpty()) {
+            Robot robot = q.pop();
+            if (seen.contains(robot.location)) continue;
+            seen.add(robot.location);
+            if (isWall(robot.location)) continue;
+            if (robot.location.equals(location1)) {
+                return robot.distance;
+            }
+            for (int i = 0; i < dr.length; i++) {
+                q.add(Robot.of(Location.of((byte) (robot.location.x + dc[i]), (byte) (robot.location.y + dr[i])), (short) (robot.distance + 1)));
+            }
+        }
+        throw new RuntimeException("not this way");
+    }
+
+    private Map<Character, Location> getAvailablePositions(Location startLocation) {
+        Map<Character, Location> available = new HashMap<>();
+        Deque<Location> q = new LinkedList<>();
+        Set<Location> seen = new HashSet<>();
+        q.add(startLocation);
+
+        while (!q.isEmpty()) {
+            Location location = q.pop();
+            if (seen.contains(location)) continue;
+            seen.add(location);
+            if (isWall(location)) continue;
+            if (isKey(location) || isDoor(location) || isRobot(location)) {
+                available.putIfAbsent(map[location.y][location.x], location);
+            }
+            for (int i = 0; i < dr.length; i++) {
+                q.add(Location.of((byte) (location.x + dc[i]), (byte) (location.y + dr[i])));
+            }
+        }
+
+        return available;
+    }
+
+    int reuse = 0;
+
+
+    class Distance {
+        int value;
+        List<Character> route = new LinkedList<>();
+
+        Distance(List<Character> route, int value) {
+            this.route = route;
+            this.value = value;
+        }
+    }
+
+    private Distance getMidMin(MidPath path, State state) {
+        Map<MidPath, Distance> mids = new HashMap<>();
+        List<Character> route = null;
+        Character minHead = null;
+        //if (path.tail.size() > 10) System.out.println(state.keys);
+        int min = Integer.MAX_VALUE;
+        if (path.tail.size() == 1)
+            return new Distance(new LinkedList<>(asList(path.tail.iterator().next())), getDistanceFor(path.head, path.tail.iterator().next(), state));
+        state.keys.entrySet().stream().filter(characterCollectionEntry -> characterCollectionEntry.getValue().isEmpty()).map(Map.Entry::getKey).forEach(c -> {
+            MidPath subPath = new MidPath();
+            subPath.tail = new HashSet<>(state.keys.keySet());
+            subPath.tail.remove(c);
+            subPath.head = c;
+
+            State newstate = new State(state);
+            newstate.route.add(c);
+            newstate.keys.remove(c);
+            newstate.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
+            newstate.keys.values().forEach(characters -> characters.remove(Character.toLowerCase(c)));
+            newstate.robots.get(getNoOfRobot(c)).location = availablePositions.get(getNoOfRobot(c)).get(c);
+            subPath.robots = new ArrayList<>(newstate.robots);
+            subPath.state = newstate;
+            Distance distance = midDistances.get(subPath);
+            if (distance == null) {
+                distance = getMidMin(subPath, newstate);
+                if (null == midDistances.put(subPath, distance) && midDistances.size() % 100000 == 0)
+                    System.out.println("Midmin size : " + midDistances.size());
+            } else {
+                reuse++;
+                if (reuse % 100000 == 0) System.out.println("Reuse count : " + reuse);
+            }
+            mids.put(subPath, distance);
+        });
+
+        for (Map.Entry<MidPath, Distance> e : mids.entrySet()) {
+            int distance = getDistanceFor(path.head, e.getKey().head, state);
+            if (min > (e.getValue().value + distance)) {
+                min = e.getValue().value + distance;
+                route = e.getValue().route;
+                minHead = e.getKey().head;
+            }
+        }
+
+        LinkedList<Character> newroute = new LinkedList<>(route);
+        newroute.add(minHead);
+        return new Distance(newroute, min);
+    }
+
+    Map<MidPath, Distance> midDistances = new HashMap<>();
+
+
+    Distance go(MidPath path, State state) {
+        Map<MidPath, Distance> mids = new HashMap<>();
+        List<Character> route = null;
+        Character minHead = null;
+
+        int min = Integer.MAX_VALUE;
+        if (path.tail.size() == 1) {
+            return new Distance(new LinkedList<>(asList(path.tail.iterator().next())), getDistanceFor(path.head, path.tail.iterator().next(), state));
+        }
+
+        state.keys.entrySet().stream().filter(characterCollectionEntry -> characterCollectionEntry.getValue().isEmpty()).map(Map.Entry::getKey).forEach(c -> {
+            MidPath subPath = new MidPath();
+            subPath.tail = new HashSet<>(state.keys.keySet());
+            subPath.tail.remove(c);
+            subPath.head = c;
+
+            State newstate = new State(state);
+            newstate.route.add(c);
+            newstate.keys.remove(c);
+            newstate.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
+            newstate.keys.values().forEach(characters -> characters.remove(Character.toLowerCase(c)));
+            int noOfRobot = getNoOfRobot(c);
+            newstate.robotsLocations[noOfRobot] = c;
+            newstate.robots.get(noOfRobot).location = availablePositions.get(noOfRobot).get(c);
+            subPath.robots = new ArrayList<>(newstate.robots);
+            subPath.robotsLocations = newstate.robotsLocations;
+            subPath.state = newstate;
+
+            if (state.route.equals(asList("ehiabcdfgkjln".toCharArray()))) {
+                System.out.println("x");
+            }
+
+            Distance distance = midDistances.get(subPath);
+            if (distance == null) {
+                distance = go(subPath, newstate);
+                if (null == midDistances.put(subPath, distance) && midDistances.size() % 10000 == 0)
+                    System.out.println("Midmin size : " + midDistances.size());
+            } else {
+                reuse++;
+                if (reuse % 10000 == 0) System.out.println("Reuse count : " + reuse);
+            }
+            mids.put(subPath, distance);
+        });
+        for (Map.Entry<MidPath, Distance> e : mids.entrySet()) {
+            int distance = getDistanceFor(path.head, e.getKey().head, state);
+            if (min > (e.getValue().value + distance)) {
+                min = e.getValue().value + distance;
+                route = e.getValue().route;
+                minHead = e.getKey().head;
+            }
+        }
+
+        LinkedList<Character> newroute = new LinkedList<>(route);
+        newroute.add(minHead);
+        return new Distance(newroute, min);
+    }
+
+    public int getShortestPathSteps() {
+        State state = q.pop();
+        MidPath path = new MidPath();
+        path.tail = new HashSet<>(state.keys.keySet());
+        Distance go = go(path, state);
+
+        Collections.reverse(go.route);
+        System.out.println(go.route);
+
+        return go.value;
+    }
+
+    private void showMidsFor(int i) {
+        System.out.println(" >>> " + i);
+        midDistances.entrySet().stream()
+                .filter(midPathDistanceEntry -> midPathDistanceEntry.getKey().tail.size() == i)
+                .forEach(midPathDistanceEntry -> System.out.println(asList(midPathDistanceEntry.getKey().robotsLocations) + " - " + midPathDistanceEntry.getKey().head + " - " + midPathDistanceEntry.getKey().tail + " : " + midPathDistanceEntry.getValue().value));
+
+    }
+
+    public int getShortestPathSteps2() {
+        State state = q.pop();
+        List<Character> minRoute = null;
+        Character minHead = null;
+        Map<MidPath, Distance> mids = new HashMap<>();
+        state.keys.entrySet().stream().filter(characterCollectionEntry -> characterCollectionEntry.getValue().isEmpty()).map(Map.Entry::getKey).forEach(c -> {
+            MidPath mid = new MidPath();
+            mid.tail = new HashSet<>(state.keys.keySet());
+            mid.tail.remove(c);
+            mid.head = c;
+
+            State newstate = new State(state);
+            newstate.route.add(c);
+            newstate.keys.remove(c);
+            newstate.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
+            newstate.keys.values().forEach(characters -> characters.remove(Character.toLowerCase(c)));
+            newstate.robots.get(getNoOfRobot(c)).location = availablePositions.get(getNoOfRobot(c)).get(c);
+            mid.robots = new ArrayList<>(newstate.robots);
+            mid.state = newstate;
+            mids.putIfAbsent(mid, getMidMin(mid, newstate));
+        });
+
+        int min = Integer.MAX_VALUE;
+        for (Map.Entry<MidPath, Distance> e : mids.entrySet()) {
+            int noOfRobot = getNoOfRobot(e.getKey().head);
+            Location location = initialRobots.get(noOfRobot).location;
+            int distance = getDistanceFor(location, e.getKey().head);
+            if (min > (e.getValue().value + distance)) {
+                min = e.getValue().value + distance;
+                minRoute = e.getValue().route;
+                minHead = e.getKey().head;
+            }
+        }
+        minRoute.add(minHead);
+        Collections.reverse(minRoute);
+        System.out.println(minRoute);
+
+        for (Map.Entry<MidPath, Distance> mp : midDistances.entrySet()) {
+            System.out.println(mp.getKey().head + " - " + mp.getKey().state.route + "- " + mp.getKey().tail + " : " + mp.getValue().value);
+        }
+        return min;
+    }
+
+
+    class MidPath {
+        public State state;
+        char head;
+        Set<Character> tail;
+        List<Robot> robots;
+        char[] robotsLocations;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            MidPath midPath = (MidPath) o;
+            return Arrays.equals(robotsLocations, midPath.robotsLocations) &&
+                    tail.containsAll(midPath.tail) && tail.size() == midPath.tail.size();
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj == null) return false;
-            if (!(obj instanceof Key)) return false;
-            Key key = (Key) obj;
-            return key.name == this.name;
+        public int hashCode() {
+            return Objects.hash(head);
         }
     }
 
-    private char[][] view;
-
-    public KeyFinder(char[][] view) {
-        this.view = view;
-        ways = createKeyToKeyWays(copy(view));
-        keys = scan(copy(view));
-        keysNames = keys.stream().map(key -> key.name).collect(Collectors.toList());
-        vertices.put(Key.of('@', new HashSet<>(getDoors(view)), findInView('@', view)), keys.stream().filter(key -> key.doors.isEmpty()).collect(Collectors.toList()));
-        for (Key key : keys) {
-            vertices.put(key, new ArrayList<>());
+    private int getDistanceForRoute(List<Character> route) {
+        List<Robot> robots = new LinkedList<>();
+        initialRobots.stream().map(Robot::new).forEach(robots::add);
+        for (Character c : route) {
+            int r = getNoOfRobot(c);
+            Location location0 = robots.get(r).location;
+            Location location1 = availablePositions.get(r).get(c);
+            robots.get(r).location = location1;
+            robots.get(r).distance += distances.get(r).get(Path.of(location0, location1));
         }
-
-        create('@');
-
+        return getDistance(robots);
     }
 
-    private Set<Character> getDoors(char[][] map) {
-        Set<Character> doors = new HashSet<>();
-        for (int i = 0; i < view[0].length; i++)
-            for (int j = 0; j < view.length; j++) {
-                if (map[j][i] >= 65 && map[j][i] <= 90)
-                    doors.add(map[j][i]);
-            }
-        return doors;
-    }
-
-    int stepsCount = -1;
-
-    Set<Key> keys;
-
-
-    private Map<Way, Integer> createKeyToKeyWays(char[][] map) {
-        Map<Way, Integer> ways = new HashMap<>();
-        List<Character> keys = new ArrayList<>();
-        keys.add('@');
-        for (int j = 0; j < map.length; j++)
-            for (int i = 0; i < map[0].length; i++) {
-                if (isDoor(map[j][i]))
-                    map[j][i] = '.';
-                if (isKey(map[j][i])) {
-                    keys.add(map[j][i]);
-                }
-            }
-        print(map);
-        for (int i = 0; i < keys.size(); i++)
-            for (int j = i + 1; j < keys.size(); j++) {
-                Character key0 = keys.get(i);
-                Character key1 = keys.get(j);
-                ways.put(Way.of(findInView(key0, map), findInView(key1, map)), findWayBetweenKeys(map, key0, key1));
-            }
-
-
-        return ways;
-    }
-
-
-    private boolean isDoor(char c) {
-        return c >= 65 && c <= 90;
-    }
-
-    private boolean isKey(char c) {
-        return c >= 97 && c <= 122;
-    }
-
-    private boolean isSpeleologist(char c) {
-        return c == '@';
-    }
-
-    int copies = 0;
-
-    private char[][] copy(char[][] map) {
-        return stream(map).map(char[]::clone).toArray(char[][]::new);
-    }
-
-    private void goTo(Character key, Location currentLocation, int steps, Set<Character> route, Set<Character> openedDoors) {
-
-        //Set<Character> leftRoute = new HashSet<>(keysNames);
-//        leftRoute.removeAll(route);
-//        String s = leftRoute.stream().sorted().map(Object::toString).collect(Collectors.joining());
-//        if (minForRoutes.get(s) != null) {
-//            return;
-//        }
-
-        Location keyLocation = findInView(key, view);
-        Way way = Way.of(currentLocation, keyLocation);
-        int distance = ways.get(way);
-        route.add(key);
-        openedDoors.add(Character.toUpperCase(key));
-        List<Key> collect = keys.stream()
-                .filter(key1 -> key1.name != key)
-                .filter(key1 -> !isKeyOnTheRoute(key1, route))
-                .filter(key1 -> key1.isAccessible(openedDoors))
-                .collect(Collectors.toList());
-        if (collect.isEmpty()) {
-            if (stepsCount == -1 || stepsCount > steps + distance)
-                stepsCount = steps + distance;
-        } else
-            for (Key key2 : collect) {
-                goTo(key2.name, keyLocation, steps + distance, new HashSet<>(route), new HashSet<>(openedDoors));
-            }
-    }
-
-    private boolean isKeyOnTheRoute(Key key1, Set<Character> route) {
-        return route.contains(key1.name);
-    }
-
-    private void print(char[][] map) {
-        for (int j = 0; j < map.length; j++) {
-            for (int i = 0; i < map[0].length; i++) {
-                System.out.print(map[j][i]);
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
-
-
-    private Integer findWayBetweenKeys(char[][] map, Character c0, Character c1) {
-        return findWaysFrom(map, c0, true).get(c1.toString());
-    }
-
-    private Map<String, Integer> findWaysFrom(char[][] map, Character c0, boolean fly) {
-        Speleologist track = Speleologist.of(findInView(c0, map));
-        Map<String, Integer> foundObjects = new HashMap<>();
-        int[][] distances = new int[map.length][map[0].length];
-        int distanceCounter = 0;
-
-        Speleologist initialPosition = null;
-        while (!track.equals(initialPosition)) {
-            char ahead = whatIsAhead(track, map);
-
-            if (canMove(ahead, fly)) {
-                track.moveAhead();
-
-                if (distances[track.location.y][track.location.x] == 0) {
-                    distanceCounter++;
-                    distances[track.location.y][track.location.x] = distanceCounter;
-                } else {
-                    distanceCounter = distances[track.location.y][track.location.x];
-                }
-                if (map[track.location.y][track.location.x] == c0) {
-                    distanceCounter = 0;
-                    distances[track.location.y][track.location.x] = distanceCounter;
-                }
-
-                char here = map[track.location.y][track.location.x];
-                if (here >= 97 && here <= 122 && here != c0) {
-                    foundObjects.put(String.valueOf(here), distances[track.location.y][track.location.x]);
-                }
-
-                if (initialPosition != null) {
-                    turn(track, false);
-                }
-            } else {
-                if (initialPosition == null) {
-                    initialPosition = track.clone();
-                }
-                turn(track, true);
+    private int getDistanceFor(char c0, char c1, State state) {
+        Location location0 = availablePositions.get(getNoOfRobot(c0)).get(c0);
+        Location location1 = availablePositions.get(getNoOfRobot(c1)).get(c1);
+        Integer oneRobotDistance = distances.get(getNoOfRobot(c1)).get(Path.of(location0, location1));
+        if (oneRobotDistance != null) return oneRobotDistance;
+        Location location2 = null;
+        for (int i = state.route.size() - 1; i >= 0; i--) {
+            char c = state.route.get(i);
+            if (availablePositions.get(getNoOfRobot(c1)).containsKey(c)) {
+                location2 = availablePositions.get(getNoOfRobot(c1)).get(c);
+                break;
             }
         }
-        return foundObjects;
+        return getDistanceFor(location2 != null ? location2 : state.robots.get(getNoOfRobot(c1)).location, c1);
+    }
+
+    private int getDistanceFor(Location location0, char c1) {
+        Location location1 = availablePositions.get(getNoOfRobot(c1)).get(c1);
+        return distances.get(getNoOfRobot(c1)).get(Path.of(location0, location1));
     }
 
 
-    private Set<Key> scan(char[][] map) {
-        Speleologist track = Speleologist.of(findInView('@', map));
-        Set<Character> doorStack = new HashSet<>();
-
-        Set<Key> foundObjects = new HashSet<>();
-        int[][] distances = new int[map.length][map[0].length];
-        int distanceCounter = 0;
-
-        Speleologist initialPosition = null;
-        while (!track.equals(initialPosition)) {
-            char ahead = whatIsAhead(track, map);
-
-
-            if (canMove(ahead, true)) {
-                track.moveAhead();
-
-                if (ahead >= 97 && ahead <= 122) {
-                    foundObjects.add(Key.of(ahead, doorStack, track.location.clone()));
-                }
-
-                if (ahead >= 65 && ahead <= 90) {
-                    if (doorStack.contains(ahead)) doorStack.remove(ahead);
-                    else doorStack.add(ahead);
-                }
-
-                if (distances[track.location.y][track.location.x] == 0) {
-                    distanceCounter++;
-                    distances[track.location.y][track.location.x] = distanceCounter;
-                } else {
-                    distanceCounter = distances[track.location.y][track.location.x];
-                }
-                if (map[track.location.y][track.location.x] == '@') {
-                    distanceCounter = 0;
-                    distances[track.location.y][track.location.x] = distanceCounter;
-                }
-
-                if (initialPosition != null) {
-                    turn(track, false);
-                }
-            } else {
-                if (initialPosition == null) {
-                    initialPosition = track.clone();
-                }
-                turn(track, true);
-            }
+    private int getNoOfRobot(Character c) {
+        for (int i = 0; i < availablePositions.size(); i++) {
+            if (availablePositions.get(i).containsKey(c)) return i;
         }
-        return foundObjects;
+        return 0;//TODO//throw new RuntimeException("not found");
     }
 
-    private boolean canMove(char ahead, boolean fly) {
-        return fly ? ahead != '#' : (ahead != '#' && !isDoor(ahead));
+    private boolean isKey(Location location) {
+        char c = map[location.y][location.x];
+        return (c >= 'a' && c <= 'z');
     }
 
-    private void turn(Speleologist speleologist, boolean clockwise) {
-        switch (speleologist.direction) {
-            case NORTH:
-                speleologist.direction = clockwise ? EAST : WEST;
-                break;
-            case SOUTH:
-                speleologist.direction = clockwise ? WEST : EAST;
-                break;
-            case EAST:
-                speleologist.direction = clockwise ? SOUTH : NORTH;
-                break;
-            case WEST:
-                speleologist.direction = clockwise ? NORTH : SOUTH;
-                break;
-        }
+    private boolean isDoor(Location location) {
+        char c = map[location.y][location.x];
+        return c >= 'A' && c <= 'Z';
     }
 
-    private char whatIsAhead(Speleologist speleologist, char[][] map) {
-        int x = speleologist.location.x;
-        int y = speleologist.location.y;
-        switch (speleologist.direction) {
-            case NORTH:
-                y--;
-                break;
-            case SOUTH:
-                y++;
-                break;
-            case EAST:
-                x++;
-                break;
-            case WEST:
-                x--;
-                break;
-        }
-        return map[y][x];
+    private boolean isWall(Location location) {
+        return map[location.y][location.x] == '#';
     }
 
-    private Location findInView(char c, char[][] map) {
-        for (int i = 0; i < map[0].length; i++)
-            for (int j = 0; j < map.length; j++) {
-                if (map[j][i] == c) return Location.of(i, j);
-            }
-        return null;
+    private boolean isRobot(Location location) {
+        return map[location.y][location.x] == '@';
+    }
+
+    private char getCharAt(Location location) {
+        return map[location.y][location.x];
+    }
+
+    public int getDistance(List<Robot> robots) {
+        return robots.stream().map(robot -> robot.distance).map(Short::intValue).reduce(Integer::sum).orElseThrow();
     }
 }

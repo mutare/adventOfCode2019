@@ -1,36 +1,29 @@
 package com.github.mutare.adventcalendar2019.day18;
 
+import java.util.Objects;
+
 class Location {
-    int x;
-    int y;
+        static Location of(byte x, byte y) {
+            Location location = new Location();
+            location.x = x;
+            location.y = y;
+            return location;
+        }
 
+        byte x;
+        byte y;
 
-    public Location(int x, int y) {
-        this.x = x;
-        this.y = y;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Location location = (Location) o;
+            return x == location.x &&
+                    y == location.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
     }
-
-    public static Location of(int x, int y) {
-        return new Location(x, y);
-    }
-
-    public Location clone() {
-        return new Location(this.x, this.y);
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 17;
-        hash+= 31 * x;
-        hash+= 31 * y;
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) return false;
-        if (!(obj instanceof Location)) return false;
-        Location other = ((Location)obj);
-        return this.x == other.x && this.y == other.y;
-    }
-}

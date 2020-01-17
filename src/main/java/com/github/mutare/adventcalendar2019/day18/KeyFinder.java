@@ -88,18 +88,10 @@ public class KeyFinder {
     Map<Character, Location> allKeysLocations = new HashMap<>();
     State initialState;
     List<Robot> initialRobots = new LinkedList<>();
-    List<List<Character>> routes = new LinkedList<>();
-    Map<Set<Character>, Integer> pathsMinDistances = new HashMap<>();
-    private int min = Integer.MAX_VALUE;
-    private int routesCount;
-
 
     byte[] dr = new byte[]{-1, 0, 1, 0};
     byte[] dc = new byte[]{0, 1, 0, -1};
-    Deque<State> q = new LinkedList<>();
-
-    Set<State> seen = new HashSet<>();
-    static Set<Character> allKeys = new HashSet<>();
+    // Deque<State> q = new LinkedList<>();
 
     public KeyFinder(char[][] map) {
         this.map = map;
@@ -113,15 +105,12 @@ public class KeyFinder {
                     initialRobots.add(new Robot(c, r));
                 }
                 if ('a' <= map[r][c] && map[r][c] <= 'z') {
-                    allKeys.add(map[r][c]);
+                    //allKeys.add(map[r][c]);
                     allKeysLocations.put(map[r][c], Location.of(c, r));
                 }
             }
         state.init();
-        //state.robots = new ArrayList<>(initialRobots);
         initialState = new State(state);
-
-        q.add(state);
 
         for (Robot robot : initialRobots) {
             Map<Character, Location> available = getAvailablePositions(robot.location);
@@ -188,60 +177,12 @@ public class KeyFinder {
 
     class Distance {
         int value;
-        List<Character> route = new LinkedList<>();
+        List<Character> route;
 
         Distance(List<Character> route, int value) {
             this.route = route;
             this.value = value;
         }
-    }
-
-    private Distance getMidMin(MidPath path, State state) {
-        Map<MidPath, Distance> mids = new HashMap<>();
-        List<Character> route = null;
-        Character minHead = null;
-        //if (path.tail.size() > 10) System.out.println(state.keys);
-        int min = Integer.MAX_VALUE;
-        if (path.tail.size() == 1)
-            return new Distance(new LinkedList<>(asList(path.tail.iterator().next())), getDistanceFor(path.head, path.tail.iterator().next(), state));
-        state.keys.entrySet().stream().filter(characterCollectionEntry -> characterCollectionEntry.getValue().isEmpty()).map(Map.Entry::getKey).forEach(c -> {
-            MidPath subPath = new MidPath();
-            subPath.tail = new HashSet<>(state.keys.keySet());
-            subPath.tail.remove(c);
-            subPath.head = c;
-
-            State newstate = new State(state);
-            newstate.route.add(c);
-            newstate.keys.remove(c);
-            newstate.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
-            newstate.keys.values().forEach(characters -> characters.remove(Character.toLowerCase(c)));
-            newstate.robots.get(getNoOfRobot(c)).location = availablePositions.get(getNoOfRobot(c)).get(c);
-            subPath.robots = new ArrayList<>(newstate.robots);
-            subPath.state = newstate;
-            Distance distance = midDistances.get(subPath);
-            if (distance == null) {
-                distance = getMidMin(subPath, newstate);
-                if (null == midDistances.put(subPath, distance) && midDistances.size() % 100000 == 0)
-                    System.out.println("Midmin size : " + midDistances.size());
-            } else {
-                reuse++;
-                if (reuse % 100000 == 0) System.out.println("Reuse count : " + reuse);
-            }
-            mids.put(subPath, distance);
-        });
-
-        for (Map.Entry<MidPath, Distance> e : mids.entrySet()) {
-            int distance = getDistanceFor(path.head, e.getKey().head, state);
-            if (min > (e.getValue().value + distance)) {
-                min = e.getValue().value + distance;
-                route = e.getValue().route;
-                minHead = e.getKey().head;
-            }
-        }
-
-        LinkedList<Character> newroute = new LinkedList<>(route);
-        newroute.add(minHead);
-        return new Distance(newroute, min);
     }
 
     Map<MidPath, Distance> midDistances = new HashMap<>();
@@ -271,13 +212,7 @@ public class KeyFinder {
             int noOfRobot = getNoOfRobot(c);
             newstate.robotsLocations[noOfRobot] = c;
             newstate.robots.get(noOfRobot).location = availablePositions.get(noOfRobot).get(c);
-            subPath.robots = new ArrayList<>(newstate.robots);
             subPath.robotsLocations = newstate.robotsLocations;
-            subPath.state = newstate;
-
-            if (state.route.equals(asList("ehiabcdfgkjln".toCharArray()))) {
-                System.out.println("x");
-            }
 
             Distance distance = midDistances.get(subPath);
             if (distance == null) {
@@ -305,10 +240,9 @@ public class KeyFinder {
     }
 
     public int getShortestPathSteps() {
-        State state = q.pop();
         MidPath path = new MidPath();
-        path.tail = new HashSet<>(state.keys.keySet());
-        Distance go = go(path, state);
+        path.tail = new HashSet<>(initialState.keys.keySet());
+        Distance go = go(path, initialState);
 
         Collections.reverse(go.route);
         System.out.println(go.route);
@@ -316,63 +250,9 @@ public class KeyFinder {
         return go.value;
     }
 
-    private void showMidsFor(int i) {
-        System.out.println(" >>> " + i);
-        midDistances.entrySet().stream()
-                .filter(midPathDistanceEntry -> midPathDistanceEntry.getKey().tail.size() == i)
-                .forEach(midPathDistanceEntry -> System.out.println(asList(midPathDistanceEntry.getKey().robotsLocations) + " - " + midPathDistanceEntry.getKey().head + " - " + midPathDistanceEntry.getKey().tail + " : " + midPathDistanceEntry.getValue().value));
-
-    }
-
-    public int getShortestPathSteps2() {
-        State state = q.pop();
-        List<Character> minRoute = null;
-        Character minHead = null;
-        Map<MidPath, Distance> mids = new HashMap<>();
-        state.keys.entrySet().stream().filter(characterCollectionEntry -> characterCollectionEntry.getValue().isEmpty()).map(Map.Entry::getKey).forEach(c -> {
-            MidPath mid = new MidPath();
-            mid.tail = new HashSet<>(state.keys.keySet());
-            mid.tail.remove(c);
-            mid.head = c;
-
-            State newstate = new State(state);
-            newstate.route.add(c);
-            newstate.keys.remove(c);
-            newstate.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
-            newstate.keys.values().forEach(characters -> characters.remove(Character.toLowerCase(c)));
-            newstate.robots.get(getNoOfRobot(c)).location = availablePositions.get(getNoOfRobot(c)).get(c);
-            mid.robots = new ArrayList<>(newstate.robots);
-            mid.state = newstate;
-            mids.putIfAbsent(mid, getMidMin(mid, newstate));
-        });
-
-        int min = Integer.MAX_VALUE;
-        for (Map.Entry<MidPath, Distance> e : mids.entrySet()) {
-            int noOfRobot = getNoOfRobot(e.getKey().head);
-            Location location = initialRobots.get(noOfRobot).location;
-            int distance = getDistanceFor(location, e.getKey().head);
-            if (min > (e.getValue().value + distance)) {
-                min = e.getValue().value + distance;
-                minRoute = e.getValue().route;
-                minHead = e.getKey().head;
-            }
-        }
-        minRoute.add(minHead);
-        Collections.reverse(minRoute);
-        System.out.println(minRoute);
-
-        for (Map.Entry<MidPath, Distance> mp : midDistances.entrySet()) {
-            System.out.println(mp.getKey().head + " - " + mp.getKey().state.route + "- " + mp.getKey().tail + " : " + mp.getValue().value);
-        }
-        return min;
-    }
-
-
     class MidPath {
-        public State state;
         char head;
         Set<Character> tail;
-        List<Robot> robots;
         char[] robotsLocations;
 
         @Override
@@ -390,21 +270,8 @@ public class KeyFinder {
         }
     }
 
-    private int getDistanceForRoute(List<Character> route) {
-        List<Robot> robots = new LinkedList<>();
-        initialRobots.stream().map(Robot::new).forEach(robots::add);
-        for (Character c : route) {
-            int r = getNoOfRobot(c);
-            Location location0 = robots.get(r).location;
-            Location location1 = availablePositions.get(r).get(c);
-            robots.get(r).location = location1;
-            robots.get(r).distance += distances.get(r).get(Path.of(location0, location1));
-        }
-        return getDistance(robots);
-    }
-
     private int getDistanceFor(char c0, char c1, State state) {
-        Location location0 = availablePositions.get(getNoOfRobot(c0)).get(c0);
+        Location location0 = c0 == '\u0000' ? null : availablePositions.get(getNoOfRobot(c0)).get(c0);
         Location location1 = availablePositions.get(getNoOfRobot(c1)).get(c1);
         Integer oneRobotDistance = distances.get(getNoOfRobot(c1)).get(Path.of(location0, location1));
         if (oneRobotDistance != null) return oneRobotDistance;
@@ -424,12 +291,11 @@ public class KeyFinder {
         return distances.get(getNoOfRobot(c1)).get(Path.of(location0, location1));
     }
 
-
     private int getNoOfRobot(Character c) {
         for (int i = 0; i < availablePositions.size(); i++) {
             if (availablePositions.get(i).containsKey(c)) return i;
         }
-        return 0;//TODO//throw new RuntimeException("not found");
+        throw new RuntimeException("not found");
     }
 
     private boolean isKey(Location location) {
@@ -452,9 +318,5 @@ public class KeyFinder {
 
     private char getCharAt(Location location) {
         return map[location.y][location.x];
-    }
-
-    public int getDistance(List<Robot> robots) {
-        return robots.stream().map(robot -> robot.distance).map(Short::intValue).reduce(Integer::sum).orElseThrow();
     }
 }

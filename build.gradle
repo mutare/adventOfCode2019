@@ -17,3 +17,9 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-all', version: '2.0.2-beta'
 }
+
+test {
+    useJUnit()
+    maxHeapSize='12G'
+}
+

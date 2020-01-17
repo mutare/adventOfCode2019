@@ -134,6 +134,6 @@ public class KeyFinderTest {
     @Test
     public void test20() throws IOException {
         KeyFinder4 keyFinder4 = new KeyFinder4(new FileViewInputSource().getView("/day18/data2"));
-        assertEquals(72, keyFinder4.getShortestPathSteps());
+        assertEquals(1938, keyFinder4.getShortestPathSteps());
     }
 }

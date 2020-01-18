@@ -9,7 +9,6 @@ public class KeyFinder {
     class State {
         public char[] robotsLocations;
         Map<Character, Collection<Character>> keys;
-        List<Robot> robots;
         List<Character> route;
 
         @Override
@@ -29,18 +28,13 @@ public class KeyFinder {
 
         public State() {
             this.keys = new HashMap<>();
-            this.robots = new ArrayList<>();
             this.route = new ArrayList<>();
         }
 
         public State(State state) {
             this.keys = new HashMap<>();
-            this.robots = new ArrayList<>();
             this.route = new ArrayList<>(state.route);
 
-            for (Robot robot : state.robots) {
-                this.robots.add(new Robot(robot));
-            }
             for (Character character : state.keys.keySet()) {
                 this.keys.put(character, new ArrayList<>(state.keys.get(character)));
             }
@@ -91,7 +85,6 @@ public class KeyFinder {
 
     byte[] dr = new byte[]{-1, 0, 1, 0};
     byte[] dc = new byte[]{0, 1, 0, -1};
-    // Deque<State> q = new LinkedList<>();
 
     public KeyFinder(char[][] map) {
         this.map = map;
@@ -101,11 +94,9 @@ public class KeyFinder {
         for (byte r = 0; r < height; r++)
             for (byte c = 0; c < width; c++) {
                 if (map[r][c] == '@') {
-                    state.robots.add(new Robot(c, r));
                     initialRobots.add(new Robot(c, r));
                 }
                 if ('a' <= map[r][c] && map[r][c] <= 'z') {
-                    //allKeys.add(map[r][c]);
                     allKeysLocations.put(map[r][c], Location.of(c, r));
                 }
             }
@@ -209,9 +200,7 @@ public class KeyFinder {
             newstate.keys.remove(c);
             newstate.keys.values().forEach(characters -> characters.remove(Character.toUpperCase(c)));
             newstate.keys.values().forEach(characters -> characters.remove(Character.toLowerCase(c)));
-            int noOfRobot = getNoOfRobot(c);
-            newstate.robotsLocations[noOfRobot] = c;
-            newstate.robots.get(noOfRobot).location = availablePositions.get(noOfRobot).get(c);
+            newstate.robotsLocations[getNoOfRobot(c)] = c;
             subPath.robotsLocations = newstate.robotsLocations;
 
             Distance distance = midDistances.get(subPath);
@@ -271,19 +260,29 @@ public class KeyFinder {
     }
 
     private int getDistanceFor(char c0, char c1, State state) {
+        int noOfRobot = getNoOfRobot(c1);
         Location location0 = c0 == '\u0000' ? null : availablePositions.get(getNoOfRobot(c0)).get(c0);
-        Location location1 = availablePositions.get(getNoOfRobot(c1)).get(c1);
-        Integer oneRobotDistance = distances.get(getNoOfRobot(c1)).get(Path.of(location0, location1));
+        Location location1 = availablePositions.get(noOfRobot).get(c1);
+        Integer oneRobotDistance = distances.get(noOfRobot).get(Path.of(location0, location1));
         if (oneRobotDistance != null) return oneRobotDistance;
         Location location2 = null;
         for (int i = state.route.size() - 1; i >= 0; i--) {
             char c = state.route.get(i);
-            if (availablePositions.get(getNoOfRobot(c1)).containsKey(c)) {
-                location2 = availablePositions.get(getNoOfRobot(c1)).get(c);
+            if (availablePositions.get(noOfRobot).containsKey(c)) {
+                location2 = availablePositions.get(noOfRobot).get(c);
                 break;
             }
         }
-        return getDistanceFor(location2 != null ? location2 : state.robots.get(getNoOfRobot(c1)).location, c1);
+        return getDistanceFor(location2 != null ? location2 : getRobotLocation(state, noOfRobot), c1);
+    }
+
+    private Location getRobotLocation(State state, int noOfRobot) {
+        char c = state.robotsLocations[noOfRobot];
+        if (c != '\u0000') {
+            return availablePositions.get(noOfRobot).get(c);
+        } else {
+            return initialRobots.get(noOfRobot).location;
+        }
     }
 
     private int getDistanceFor(Location location0, char c1) {

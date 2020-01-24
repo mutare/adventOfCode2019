@@ -20,11 +20,15 @@ public class FileViewInputSource {
                 lines.add(line);
             }
         }
-        char[][] view = new char[lines.size()][lines.get(0).length()];
+        char[][] view = new char[lines.size()][longestLineSize(lines)];
         for (int i = 0 ; i < lines.size() ; i++) {
             String line = lines.get(i);
             arraycopy(line.toCharArray(), 0, view[i], 0, line.toCharArray().length);
         }
         return view;
+    }
+
+    private int longestLineSize(List<String> lines) {
+        return lines.stream().map(String::length).max(Integer::compare).orElseThrow();
     }
 }

@@ -13,18 +13,20 @@ public class PortalDungeon {
 
     class State {
         public int distance;
+        public int level;
 
-        public State(int x, int y, int d) {
+        public State(int x, int y, int d, int l) {
             this.x = x;
             this.y = y;
             this.distance = d;
+            this.level = l;
         }
 
         int x;
         int y;
 
         public State(int x, int y) {
-            this(x, y, 0);
+            this(x, y, 0, 0);
         }
 
         @Override
@@ -33,12 +35,23 @@ public class PortalDungeon {
             if (o == null || getClass() != o.getClass()) return false;
             State state = (State) o;
             return x == state.x &&
-                    y == state.y;
+                    y == state.y && level == state.level;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(x, y);
+            return Objects.hash(level);
+        }
+
+        @Override
+        public String toString() {
+            return "State{" +
+                    "distance=" + distance +
+                    ", level=" + level +
+                    //", route=" + route +
+                    ", x=" + x +
+                    ", y=" + y +
+                    '}';
         }
     }
 
@@ -89,16 +102,15 @@ public class PortalDungeon {
         return getCharAt(x, y) == '.';
     }
 
-
-    public int findShortestPath() {
-        Set seen = new HashSet();
+    public int findShortestPath(boolean recursive) {
+        Set<State> seen = new HashSet<>();
         while (!q.isEmpty()) {
             State state = q.pop();
             if (seen.contains(state)) continue;
             seen.add(state);
 
             for (int i = 0; i < 4; i++) {
-                State newState = new State(state.x + dc[i], state.y + dr[i], state.distance + 1);
+                State newState = new State(state.x + dc[i], state.y + dr[i], state.distance + 1, state.level);
                 if (newState.x >= width || newState.x < 0 || newState.y >= height || newState.y < 0) continue;
                 if (isPass(newState.x, newState.y)) {
                     q.add(newState);
@@ -107,18 +119,30 @@ public class PortalDungeon {
                     char c0 = getCharAt(newState.x, newState.y);
                     char c1 = findSecondLetter(newState);
                     String portalName = "" + c0 + c1;
-                    if (portalName.equals("ZZ")) return newState.distance - 1;
+                    boolean inner = isInnerportal(newState);
                     if (portalName.equals("AA")) continue;
+                    if (recursive) {
+                        if (!inner && newState.level == 0 && !portalName.equals("ZZ") && !portalName.equals("AA"))
+                            continue;
+                        if (newState.level > 0 && (portalName.equals("ZZ") || portalName.equals("AA"))) continue;
+                    }
+                    if (portalName.equals("ZZ")) {
+                        return newState.distance - 1;
+                    }
                     portalName = sort(portalName);
                     List<State> states = portals.get(portalName);
                     State state2 = states.stream().filter(state1 -> state1.x != state.x && state1.y != state.y).findFirst().orElseThrow();
-                    newState = new State(state2.x, state2.y, state.distance + 1);
+                    newState = new State(state2.x, state2.y, state.distance + 1, state.level + (inner ? 1 : -1));
                     q.add(newState);
                 }
             }
         }
 
         return 0;
+    }
+
+    private boolean isInnerportal(State state) {
+        return state.x > 3 && state.x < width - 3 && state.y > 3 && state.y < height - 3;
     }
 
     private String sort(String portalName) {

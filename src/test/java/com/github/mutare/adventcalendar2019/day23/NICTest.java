@@ -17,7 +17,7 @@ public class NICTest {
     @Test
     public void two() throws IOException {
         NIC nic = new NIC(new FileProgramInputSource().getProgram("/day23/data"));
-        assertEquals(-1, nic.run(2));
+        assertEquals(19019, nic.run(2));
     }
 
 }

@@ -9,8 +9,15 @@ import static org.junit.Assert.assertEquals;
 
 public class NICTest {
     @Test
-    public void test() throws IOException {
+    public void one() throws IOException {
         NIC nic = new NIC(new FileProgramInputSource().getProgram("/day23/data"));
-        assertEquals(23626, nic.run());
+        assertEquals(23626, nic.run(1));
     }
+
+    @Test
+    public void two() throws IOException {
+        NIC nic = new NIC(new FileProgramInputSource().getProgram("/day23/data"));
+        assertEquals(-1, nic.run(2));
+    }
+
 }

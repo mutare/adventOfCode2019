@@ -48,4 +48,8 @@ public class NetworkComputer {
     public void addInput(Packet packet) {
         input.add(packet);
     }
+
+    public boolean isIdle() {
+        return output.isEmpty() && input.isEmpty() && buffer.isEmpty();
+    }
 }

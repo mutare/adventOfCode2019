@@ -36,11 +36,9 @@ public class PlanetOfBugsTest {
         Set<Integer> biodiversities = new HashSet<>();
         PlanetOfBugs planetOfBugs = new PlanetOfBugs(new FileViewInputSource().getView("/day24/test0"));
         int biodiversity;
-        int c = 0;
         while (!biodiversities.contains(biodiversity = planetOfBugs.getBiodiversity())) {
             biodiversities.add(biodiversity);
             planetOfBugs.nextMinute();
-            c++;
         }
         assertEquals(2129920, planetOfBugs.getBiodiversity());
 
@@ -51,14 +49,30 @@ public class PlanetOfBugsTest {
         Set<Integer> biodiversities = new HashSet<>();
         PlanetOfBugs planetOfBugs = new PlanetOfBugs(new FileViewInputSource().getView("/day24/data"));
         int biodiversity;
-        int c = 0;
         while (!biodiversities.contains(biodiversity = planetOfBugs.getBiodiversity())) {
             biodiversities.add(biodiversity);
             planetOfBugs.nextMinute();
-            c++;
         }
         assertEquals(32506764, planetOfBugs.getBiodiversity());
+    }
 
+    @Test
+    public void test6() throws IOException {
+        PlanetOfBugs planetOfBugs = new PlanetOfBugs(new FileViewInputSource().getView("/day24/test6"), true);
+        for (int i = 0; i < 10; i++) {
+            planetOfBugs.nextMinute();
+        }
+        assertEquals(99, planetOfBugs.getNoOfBugs());
+    }
+
+    @Test
+    public void two() throws IOException {
+
+        PlanetOfBugs planetOfBugs = new PlanetOfBugs(new FileViewInputSource().getView("/day24/data"), true);
+        for (int i = 0; i < 200; i++) {
+            planetOfBugs.nextMinute();
+        }
+        assertEquals(1963, planetOfBugs.getNoOfBugs());
     }
 
 }

@@ -8,11 +8,18 @@ public class IntcodeComputer {
 
     private final AtomicLong base = new AtomicLong(0);
     private final long[] memory = new long[40960];
-    private int operaionCount = 0;
     private long index = 0;
     private Long input;
+
     public IntcodeComputer(long... program) {
         arraycopy(program, 0, memory, 0, program.length);
+    }
+
+    public IntcodeComputer(IntcodeComputer computer) {
+        this.base.set(computer.base.intValue());
+        arraycopy(computer.memory, 0, memory, 0, computer.memory.length);
+        this.index = computer.index;
+        this.input = computer.input;
     }
 
     public long[] getMemory() {
@@ -55,7 +62,6 @@ public class IntcodeComputer {
             if (result.type != Result.Type.OK) {
                 return result;
             }
-            operaionCount++;
         }
         return new Result(Result.Type.END);
     }
@@ -159,6 +165,7 @@ public class IntcodeComputer {
                 throw new RuntimeException();
         }
     }
+
     public void reset() {
         index = 0;
     }
